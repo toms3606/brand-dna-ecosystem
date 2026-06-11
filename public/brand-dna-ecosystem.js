@@ -72,7 +72,6 @@
       '<div class="bdna-page">',
         heroHTML(),
         componentsHTML(),
-        lensesHTML(),
         feedbackHTML(),
         toolsHTML(),
         ctaHTML(),
@@ -122,37 +121,42 @@
     ].join('');
   }
 
-  function lensesHTML() {
-    var lenses = [
-      { label: 'Audience', body: 'What your audience needs, expects, and responds to. Every Goal is set for a specific audience; every Strategy and piece of Execution is shaped around it.' },
-      { label: 'Competitors', body: 'Where your competitors are positioned and where the gaps are. Environment scanning, Strategy choices, and positioning decisions all run through this lens.' },
-      { label: 'Product', body: 'What your product actually does, and what makes it different. Execution either reinforces these claims or undermines them.' }
+  function feedbackHTML() {
+    var flows = [
+      {
+        from: 'Execution', to: 'Strategies', type: 'Continuous loop',
+        body: 'Performance data and audience signal teach us which strategies are working. Strategy mix gets adjusted continuously to favor what delivers.'
+      },
+      {
+        from: 'Environment', to: 'Strategies', type: 'Exogenous shift',
+        body: 'When the world moves — competitor, platform, audience, regulation — the right strategies may change even when execution is fine. Environment is the input we respond to, not control.'
+      },
+      {
+        from: 'Strategies + Environment', to: 'Goals', type: 'Recalibration',
+        body: 'Goals don\'t shift on a bad week. But when Environment has moved significantly or Strategies can\'t deliver against current Goals, the Goals themselves get recalibrated. Quarterly or semi-annually.'
+      },
+      {
+        from: 'Business decisions', to: 'Goals', type: 'Resetting',
+        body: 'Comes from outside the system. Leadership decides on growth phase, revenue targets, market expansion. The marketing system operates against these — it doesn\'t set them.'
+      }
     ];
-    var cards = lenses.map(function (l) {
+    var cards = flows.map(function (f) {
       return [
-        '<div class="lens-card">',
-          '<div class="lens-card-label">' + esc(l.label) + '</div>',
-          '<p class="lens-card-text">' + esc(l.body) + '</p>',
+        '<div class="flow-card">',
+          '<div class="flow-card-arrow">' + esc(f.from) + ' <span class="flow-card-arrow-mark">→</span> ' + esc(f.to) + '</div>',
+          '<div class="flow-card-type">' + esc(f.type) + '</div>',
+          '<p class="flow-card-text">' + esc(f.body) + '</p>',
         '</div>'
       ].join('');
     }).join('');
     return [
       '<section class="page-section">',
-        '<div class="section-label">How the Lenses Work</div>',
-        '<p class="prose">Every core node is evaluated through three recurring lenses. They\'re what make the system hold together — and what makes it expandable as more tools come online.</p>',
-        '<div class="lenses-grid">' + cards + '</div>',
-      '</section>'
-    ].join('');
-  }
-
-  function feedbackHTML() {
-    return [
-      '<section class="page-section">',
         '<div class="section-label">The Feedback Loop</div>',
-        '<p class="prose">The Ecosystem is not a one-way pipeline. Each node feeds into the next — Goals shape Environment scanning, Environment shapes Strategies, Strategies shape Execution — and every node feeds back to the nucleus. What Execution learns about the world refines the DNA. What Environment surfaces changes the Goals.</p>',
+        '<p class="prose">The four orbital nodes iterate. Execution teaches Strategies. Environment shifts reshape both Strategies and Goals. Brand DNA at the center holds — it\'s the filter every change passes through, not something that updates with each cycle. The DNA is revisited only on major business events: new market, new leadership, true repositioning.</p>',
+        '<div class="flow-grid">' + cards + '</div>',
         '<div class="callout">',
           '<div class="callout-label">The operating difference</div>',
-          '<p class="callout-text">The system gets sharper with every cycle. This is what separates a one-off audit from a Westward engagement — the work compounds because the model keeps teaching itself.</p>',
+          '<p class="callout-text">The system gets sharper with every iterative cycle. This is what separates a one-off audit from a Westward engagement — the work compounds because the model keeps teaching itself.</p>',
         '</div>',
       '</section>'
     ].join('');
@@ -165,7 +169,7 @@
         '<p class="prose">Every Westward tool maps to a specific node in the Ecosystem. The free audits are entry points; the paid engagements are full traversals of the system.</p>',
         '<div class="tools-subhead">Available now</div>',
         '<div class="tools-grid">',
-          toolCard('Brand DNA Audit', 'nucleus', 'A free diagnostic at the nucleus — measures whether your public-facing brand expresses a coherent DNA.', '/brand-dna-audit'),
+          toolCard('Brand DNA Audit', 'nucleus', 'A free snapshot of current DNA versus ideal — surfaces drift and triggers the alignment conversation.', '/brand-dna-audit'),
           toolCard('GEO Audit', 'environment', 'A free diagnostic at Environment — measures how AI engines find, interpret, and recommend your brand.', '/geo-audit'),
         '</div>',
       '</section>'
