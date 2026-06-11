@@ -152,7 +152,7 @@
     return [
       '<section class="page-section">',
         '<div class="section-label">The Feedback Loop</div>',
-        '<p class="prose">The four orbital nodes iterate. Execution teaches Strategies. Environment shifts reshape both Strategies and Goals. Brand DNA at the center holds — it\'s the filter every change passes through, not something that updates with each cycle. The DNA is revisited only on major business events: new market, new leadership, true repositioning.</p>',
+        '<p class="prose">The four orbital nodes iterate. Execution teaches Strategies. Environmental shifts reshape both Strategies and Execution, and Goal updates reshape Strategies and Execution. Brand DNA serves as the touchstone for every change, not something that updates with each iterative cycle. Your Brand DNA is revisited for alignment and based on major business events: new markets, acquisitions, true repositioning.</p>',
         '<div class="flow-grid">' + cards + '</div>',
         '<div class="callout">',
           '<div class="callout-label">The operating difference</div>',
