@@ -129,6 +129,15 @@
     return [
       '<section class="page-section">',
         '<div class="section-label">The Five Components</div>',
+        '<div class="components-intro">',
+          '<div class="components-intro-text">',
+            '<p class="section-opener">What each component does.</p>',
+            '<p class="prose">Each of the five components plays a distinct role in the Brand DNA Ecosystem. Brand DNA is the nucleus; the four orbital components — Goals, Environment, Strategies, Execution — each define a key axis of brand operation. Goals, shown here, is one example: a single component surrounded by the domains that compose it.</p>',
+          '</div>',
+          '<div class="components-intro-graphic">',
+            componentSVG('goals'),
+          '</div>',
+        '</div>',
         '<div class="components-grid">' + cards + '</div>',
       '</section>'
     ].join('');
@@ -418,6 +427,70 @@
         parts.push('</g>');
       }
     });
+
+    parts.push('</svg>');
+    return parts.join('');
+  }
+
+  // Render an isolated illustration of one component + its sub-nodes.
+  // Same coordinates as the main molecule (so geometry matches exactly),
+  // but no nucleus, no other cores, no BDNA bond. All elements in their
+  // default (unselected) state.
+  function componentSVG(key) {
+    var m = MOLECULE;
+    var core = m.cores[key];
+    if (!core) return '';
+    var label = key.toUpperCase();
+
+    // Compute bounding box of the component + sub-nodes for viewBox cropping
+    var minX = core.cx - m.coreW / 2;
+    var maxX = core.cx + m.coreW / 2;
+    var minY = core.cy - m.coreH / 2;
+    var maxY = core.cy + m.coreH / 2;
+    for (var i = 0; i < core.subs.length; i++) {
+      var sl = subLayout(core, i, core.subs.length, m.nucleus);
+      minX = Math.min(minX, sl.center.x - m.subW / 2);
+      maxX = Math.max(maxX, sl.center.x + m.subW / 2);
+      minY = Math.min(minY, sl.center.y - m.subH / 2);
+      maxY = Math.max(maxY, sl.center.y + m.subH / 2);
+    }
+    // Add a little padding so strokes / labels aren't clipped
+    var pad = 12;
+    var vbX = (minX - pad).toFixed(0);
+    var vbY = (minY - pad).toFixed(0);
+    var vbW = (maxX - minX + 2 * pad).toFixed(0);
+    var vbH = (maxY - minY + 2 * pad).toFixed(0);
+
+    var parts = [];
+    parts.push('<svg viewBox="' + vbX + ' ' + vbY + ' ' + vbW + ' ' + vbH + '" role="img" aria-label="' + esc(label.charAt(0) + label.slice(1).toLowerCase()) + ' component with its sub-nodes" class="molecule component-detail">');
+
+    // Sub-bond lines
+    parts.push('<g class="sub-bonds" aria-hidden="true">');
+    for (var j = 0; j < core.subs.length; j++) {
+      var sl2 = subLayout(core, j, core.subs.length, m.nucleus);
+      parts.push('<line x1="' + sl2.bondStart.x.toFixed(1) + '" y1="' + sl2.bondStart.y.toFixed(1) + '" x2="' + sl2.center.x.toFixed(1) + '" y2="' + sl2.center.y.toFixed(1) + '" class="sub-bond"/>');
+    }
+    parts.push('</g>');
+
+    // Core hex (default styling, not active)
+    var labelClass = (label === 'ENVIRONMENT') ? 'node-label core-label env' : 'node-label core-label';
+    parts.push('<g class="node core">');
+    parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
+    parts.push('<text x="' + core.cx + '" y="' + (core.cy + 6) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
+    parts.push('</g>');
+
+    // Sub-nodes (default styling — white fill, hairline outline)
+    for (var k = 0; k < core.subs.length; k++) {
+      var sublabel = core.subs[k];
+      var sl3 = subLayout(core, k, core.subs.length, m.nucleus);
+      var px = sl3.center.x, py = sl3.center.y;
+      parts.push('<g class="sub-node">');
+      parts.push('<polygon points="' + hexPoints(px, py, m.subW, m.subH) + '" class="sub-node-shape"/>');
+      parts.push('<text x="' + px.toFixed(1) + '" y="' + (py + 3).toFixed(1) + '" text-anchor="middle" class="sub-node-label">');
+      parts.push(subLabelTspans(sublabel, px.toFixed(1), py.toFixed(1)));
+      parts.push('</text>');
+      parts.push('</g>');
+    }
 
     parts.push('</svg>');
     return parts.join('');
