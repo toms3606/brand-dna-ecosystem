@@ -9,7 +9,7 @@
   --paper:#fff; --paper-soft:#f7f9fa;
   --rule:rgba(15,110,86,0.15); --rule-soft:rgba(15,110,86,0.08);
   --radius:10px;
-  font-family:"DM Sans", sans-serif;
+  font-family:"DM Sans", sans-serif; 
   font-size:14px;
   line-height:1.55;
   color:var(--ink);
