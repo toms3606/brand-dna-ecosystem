@@ -205,23 +205,49 @@
 
   // ---- Molecule layout -----------------------------------------------------
 
-  // Core node positions and sub-node configurations.
-  // 'side' determines which direction the 6 sub-nodes fan out from the core.
+  // Geometry overview:
+  //   - Brand DNA nucleus at canvas center.
+  //   - Four core nodes pulled in close to the nucleus.
+  //   - Each core has 6 sub-nodes that fan out, with ALL sub-bonds converging
+  //     at a single "anchor" vertex of the core hex.
+  //   - Anchor vertex is the hex vertex adjacent to (but offset from) where
+  //     the BDNA bond terminates:
+  //       Top cores:    anchor = vertex directly above the BDNA connection.
+  //       Bottom cores: anchor = vertex directly below the BDNA connection.
+  //   - Sub-nodes spread in a 150° arc around the fan center direction,
+  //     which is the direction from the anchor toward open canvas.
   var MOLECULE = {
     nucleus: { cx: 650, cy: 435 },
     cores: {
-      execution:   { cx: 280,  cy: 220, side: 'west',
-                     subs: ['CONTENT', 'PAID MEDIA', 'SEO/GEO', 'EMAIL', 'SOCIAL', 'AI'] },
-      goals:       { cx: 1020, cy: 220, side: 'east',
-                     subs: ['REVENUE', 'MARKET\nSHARE', 'ACQUISITION', 'RETENTION', 'GROWTH', 'AUTHORITY'] },
-      strategies:  { cx: 280,  cy: 650, side: 'west',
-                     subs: ['CHANNELS', 'TARGETING', 'POSITIONING', 'CONTENT\nPLAN', 'PRICING', 'PRODUCT/\nSERVICE'] },
-      environment: { cx: 1020, cy: 650, side: 'east',
-                     subs: ['MARKET', 'COMPETITORS', 'AUDIENCES', 'AI/SEARCH', 'INDUSTRY\nTRENDS', 'REGULATORY'] }
+      execution: {
+        cx: 400, cy: 280,
+        anchor: { x: 475, y: 257 }, // top-right vertex of core hex
+        fanCenterDeg: 200,           // slightly above due-West
+        subs: ['CONTENT', 'PAID MEDIA', 'SEO/GEO', 'EMAIL', 'SOCIAL', 'AI']
+      },
+      goals: {
+        cx: 900, cy: 280,
+        anchor: { x: 825, y: 257 }, // top-left vertex of core hex
+        fanCenterDeg: -20,           // slightly above due-East
+        subs: ['REVENUE', 'MARKET\nSHARE', 'ACQUISITION', 'RETENTION', 'GROWTH', 'AUTHORITY']
+      },
+      strategies: {
+        cx: 400, cy: 590,
+        anchor: { x: 475, y: 613 }, // bottom-right vertex of core hex
+        fanCenterDeg: 160,           // slightly below due-West
+        subs: ['CHANNELS', 'TARGETING', 'POSITIONING', 'CONTENT\nPLAN', 'PRICING', 'PRODUCT/\nSERVICE']
+      },
+      environment: {
+        cx: 900, cy: 590,
+        anchor: { x: 825, y: 613 }, // bottom-left vertex of core hex
+        fanCenterDeg: 20,            // slightly below due-East
+        subs: ['MARKET', 'COMPETITORS', 'AUDIENCES', 'AI/SEARCH', 'INDUSTRY\nTRENDS', 'REGULATORY']
+      }
     },
     coreW: 150, coreH: 93,
     subW: 90,  subH: 56,
-    subRadius: 160
+    subFanSpanDeg: 150,
+    subDistance: 180
   };
 
   // Build a hexagon polygon points string centered at (cx, cy)
@@ -237,23 +263,26 @@
     ].join(' ');
   }
 
-  // Compute sub-node position for a core node — 180° arc on the outer side
+  // Compute sub-node position: distance from the anchor vertex, angle within
+  // the fan arc centered on fanCenterDeg. Position 0 is the topmost sub-node
+  // (lowest y), position 5 is the bottommost. To achieve this, we iterate
+  // from the angle that produces the smallest y to the angle that produces
+  // the largest y.
   function subPosition(core, idx, count) {
-    var startDeg, endDeg;
-    if (core.side === 'west') {
-      // arc from top (north) around through west to bottom (south)
-      startDeg = -90; endDeg = -270;
-    } else {
-      // arc from top (north) around through east to bottom (south)
-      startDeg = -90; endDeg = 90;
+    var halfSpan = MOLECULE.subFanSpanDeg / 2;
+    // Generate all candidate angles in the fan, then sort by resulting y
+    var candidates = [];
+    for (var k = 0; k < count; k++) {
+      var t = k / (count - 1);
+      var deg = (core.fanCenterDeg - halfSpan) + t * MOLECULE.subFanSpanDeg;
+      var rad = deg * Math.PI / 180;
+      candidates.push({
+        x: core.anchor.x + MOLECULE.subDistance * Math.cos(rad),
+        y: core.anchor.y + MOLECULE.subDistance * Math.sin(rad)
+      });
     }
-    var t = idx / (count - 1);
-    var deg = startDeg + t * (endDeg - startDeg);
-    var rad = deg * Math.PI / 180;
-    return {
-      x: core.cx + MOLECULE.subRadius * Math.cos(rad),
-      y: core.cy + MOLECULE.subRadius * Math.sin(rad)
-    };
+    candidates.sort(function (a, b) { return a.y - b.y; }); // top to bottom
+    return candidates[idx];
   }
 
   // Render a sub-node label as one or two <tspan> lines.
@@ -279,29 +308,28 @@
     parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
     // Bond lines: nucleus vertices → core node inner vertices
-    // Nucleus hex at (650, 435) with width 150 / height 93:
+    // Nucleus hex at (650, 435), width 150, height 93:
     //   top-right vertex = (725, 412), bottom-right = (725, 458)
     //   bottom-left = (575, 458), top-left = (575, 412)
-    // Each core hex inner vertex = the vertex facing the nucleus
-    //   Goals (1020, 220):       bottom-left inner = (945, 243)
-    //   Environment (1020, 650): top-left inner   = (945, 627)
-    //   Strategies (280, 650):   top-right inner  = (355, 627)
-    //   Execution (280, 220):    bottom-right inner = (355, 243)
+    // Core inner vertices (the vertex facing the nucleus):
+    //   Goals (900, 280):       bottom-left  = (825, 303)
+    //   Environment (900, 590): top-left     = (825, 567)
+    //   Strategies (400, 590):  top-right    = (475, 567)
+    //   Execution (400, 280):   bottom-right = (475, 303)
     parts.push('<g class="bonds" aria-hidden="true">');
-    parts.push('<line x1="725" y1="412" x2="945" y2="243" class="bond"/>');
-    parts.push('<line x1="725" y1="458" x2="945" y2="627" class="bond"/>');
-    parts.push('<line x1="575" y1="458" x2="355" y2="627" class="bond"/>');
-    parts.push('<line x1="575" y1="412" x2="355" y2="243" class="bond"/>');
+    parts.push('<line x1="725" y1="412" x2="825" y2="303" class="bond"/>');
+    parts.push('<line x1="725" y1="458" x2="825" y2="567" class="bond"/>');
+    parts.push('<line x1="575" y1="458" x2="475" y2="567" class="bond"/>');
+    parts.push('<line x1="575" y1="412" x2="475" y2="303" class="bond"/>');
     parts.push('</g>');
 
-    // Sub-bond lines: core node center → sub-node center
-    // (Drawn before sub-node hexes so the fills cover line endpoints)
+    // Sub-bond lines: anchor vertex → sub-node center
     parts.push('<g class="sub-bonds" aria-hidden="true">');
     Object.keys(m.cores).forEach(function (key) {
       var core = m.cores[key];
       for (var i = 0; i < core.subs.length; i++) {
         var p = subPosition(core, i, core.subs.length);
-        parts.push('<line x1="' + core.cx + '" y1="' + core.cy + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" class="sub-bond" data-parent="' + key + '"/>');
+        parts.push('<line x1="' + core.anchor.x + '" y1="' + core.anchor.y + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" class="sub-bond" data-parent="' + key + '"/>');
       }
     });
     parts.push('</g>');
