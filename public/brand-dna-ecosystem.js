@@ -71,6 +71,7 @@
     return [
       '<div class="bdna-page">',
         heroHTML(),
+        domainsHTML(),
         componentsHTML(),
         feedbackHTML(),
         toolsHTML(),
@@ -96,6 +97,18 @@
             '</div>',
           '</div>',
         '</div>',
+      '</section>'
+    ].join('');
+  }
+
+  function domainsHTML() {
+    return [
+      '<section class="page-section">',
+        '<div class="section-label">Domains</div>',
+        '<p class="section-opener">What composes each component.</p>',
+        '<p class="prose">Each of the four orbital components is itself composed of domains — the specific areas where the work happens. Goals isn\'t a single thing; it\'s Revenue and Market Share and Acquisition and Retention and the rest. Environment isn\'t monolithic; it\'s the Market, the Competitors, the Audiences, the AI/Search layer, the Industry, the Regulatory context. The sub-nodes in the molecule are these domains.</p>',
+        '<p class="prose">The decomposition is practical, not academic. Brands don\'t strategize on "Goals" — they strategize on Retention or on Authority. They don\'t analyze "Environment" — they analyze a Competitor or a Regulatory shift. Naming the domains is how the model becomes operable: you can audit a single domain, target a single domain, build a tool around a single domain. The components organize the work; the domains are where the work gets done.</p>',
+        '<p class="prose">Not every domain maps to every brand. A B2B SaaS company and a regulated healthcare brand operate in different environments and pursue different goals; the domains shown here are a starting set, not a universal one. We generate custom sub-nodes when a brand\'s actual structure calls for them — adding the ones that matter, removing the ones that don\'t, renaming the ones that fit better in the brand\'s own language.</p>',
       '</section>'
     ].join('');
   }
