@@ -261,12 +261,39 @@
     return vertsToPoints(hexVertices(cx, cy, w, h));
   }
 
-  // Compute sub-node positions for a core. Each sub-node sits on a radial
-  // spoke from the core center. Spokes are evenly distributed across a
-  // 180° arc centered on the direction from nucleus to core (i.e. the
-  // outward direction). Results are then sorted by y so position 0 is the
-  // visually topmost sub-node and position N-1 is the bottommost — which
-  // is how the label arrays are ordered.
+  // Walk from a hex center along a ray at `angle` (radians) and return the
+  // point where the ray exits the hex perimeter. Used to compute the attach
+  // point for each sub-bond — where the radial line from core to sub-node
+  // crosses the hex edge.
+  function rayHexExit(cx, cy, w, h, angle) {
+    var verts = hexVertices(cx, cy, w, h);
+    var dx = Math.cos(angle), dy = Math.sin(angle);
+    // Try each edge (vert[i] to vert[(i+1) % 6]) and find which segment the
+    // ray intersects with t > 0. Return the first valid intersection.
+    for (var i = 0; i < 6; i++) {
+      var a = verts[i], b = verts[(i + 1) % 6];
+      var ex = b.x - a.x, ey = b.y - a.y;
+      // Solve: center + t * (dx, dy) = a + s * (ex, ey)
+      //   t * dx - s * ex = a.x - cx
+      //   t * dy - s * ey = a.y - cy
+      var det = -dx * ey + dy * ex;
+      if (Math.abs(det) < 1e-9) continue; // parallel
+      var rhs1 = a.x - cx, rhs2 = a.y - cy;
+      var t = (-ey * rhs1 + ex * rhs2) / det;
+      var s = (-dy * rhs1 + dx * rhs2) / det;
+      if (t > 1e-6 && s >= -1e-6 && s <= 1 + 1e-6) {
+        return { x: cx + t * dx, y: cy + t * dy };
+      }
+    }
+    // Fallback (shouldn't happen for a valid hex + center-origin ray)
+    return { x: cx, y: cy };
+  }
+
+  // Compute sub-node positions and bond attach points. Sub-nodes sit on
+  // radial spokes from the core center, distributed across a 180° arc
+  // centered on the outward direction. The bond attach point is where the
+  // radial line crosses the hex perimeter — giving each sub-bond a unique
+  // attachment on the outer edges of the core hex.
   function subLayout(core, idx, count, nucleus) {
     var outwardAngle = Math.atan2(core.cy - nucleus.cy, core.cx - nucleus.cx);
     var arcSpan = MOLECULE.subArcSpanDeg * Math.PI / 180;
@@ -282,8 +309,11 @@
     }
     positions.sort(function (a, b) { return a.y - b.y; });
     var p = positions[idx];
+    // Attach point = where the radial line from core center at angle p.angle
+    // exits the hex perimeter
+    var attach = rayHexExit(core.cx, core.cy, MOLECULE.coreW, MOLECULE.coreH, p.angle);
     return {
-      bondStart: { x: core.cx, y: core.cy },
+      bondStart: { x: attach.x, y: attach.y },
       center: { x: p.x, y: p.y }
     };
   }
@@ -413,6 +443,14 @@
         g.classList.toggle('active', g.getAttribute('data-parent') === key);
         g.classList.toggle('dimmed', g.getAttribute('data-parent') !== key);
       });
+      // Bring the active group to the front via DOM reorder. SVG paints in
+      // document order, so appending elements moves them above the rest.
+      // Order matters: active sub-bonds first (so they're behind their
+      // hexes), then the active core node, then active sub-nodes.
+      svg.querySelectorAll('.sub-bond.active').forEach(function (g) { svg.appendChild(g); });
+      var activeCore = svg.querySelector('.node.active');
+      if (activeCore) svg.appendChild(activeCore);
+      svg.querySelectorAll('.sub-node.active').forEach(function (g) { svg.appendChild(g); });
     }
 
     function clearNode() {
