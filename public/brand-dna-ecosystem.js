@@ -206,83 +206,140 @@
   // ---- Molecule layout -----------------------------------------------------
 
   // Geometry overview:
-  //   - Brand DNA nucleus at canvas center.
-  //   - Four core nodes pulled in close to the nucleus.
-  //   - Each core has 6 sub-nodes that fan out, with ALL sub-bonds converging
-  //     at a single "anchor" vertex of the core hex.
-  //   - Anchor vertex is the hex vertex adjacent to (but offset from) where
-  //     the BDNA bond terminates:
-  //       Top cores:    anchor = vertex directly above the BDNA connection.
-  //       Bottom cores: anchor = vertex directly below the BDNA connection.
-  //   - Sub-nodes spread in a 150° arc around the fan center direction,
-  //     which is the direction from the anchor toward open canvas.
+  //   - Brand DNA nucleus at canvas center; 4 core nodes orbit close.
+  //   - Each core's sub-nodes have attachment points distributed along the
+  //     outer perimeter of the core hex — starting at a designated anchor
+  //     vertex and walking around the OUTSIDE of the hex (away from the BDNA
+  //     bond). Each sub-bond connects at its own distinct point on the hex
+  //     edge. Sub-nodes extend outward from those points along the local
+  //     edge normal at varying distances.
+  //
+  //   This means: changing the sub-node count automatically redistributes
+  //   the attachment points; changing labels doesn't move geometry; adding
+  //   or removing sub-nodes Just Works.
+  //
+  //   Hex vertices (flat-top, in clockwise order from top):
+  //     0: top         (cx,       cy - h/2)
+  //     1: top-right   (cx + w/2, cy - h/4)
+  //     2: bottom-right(cx + w/2, cy + h/4)
+  //     3: bottom      (cx,       cy + h/2)
+  //     4: bottom-left (cx - w/2, cy + h/4)
+  //     5: top-left    (cx - w/2, cy - h/4)
+  //
+  //   For each core, `vertexPath` is the ordered list of vertex indices that
+  //   defines the outer walk. First entry = anchor vertex (where the first
+  //   sub-bond attaches). Last entry = the opposite-side vertex where the
+  //   walk ends. The path goes around the OUTSIDE of the hex, away from
+  //   the BDNA bond.
   var MOLECULE = {
     nucleus: { cx: 650, cy: 435 },
     cores: {
       execution: {
         cx: 400, cy: 280,
-        anchor: { x: 475, y: 257 }, // top-right vertex of core hex
-        fanCenterDeg: 200,           // slightly above due-West
+        // anchor = top-right (idx 1); walk CCW around outer edges
+        vertexPath: [1, 0, 5, 4],
         subs: ['CONTENT', 'PAID MEDIA', 'SEO/GEO', 'EMAIL', 'SOCIAL', 'AI']
       },
       goals: {
         cx: 900, cy: 280,
-        anchor: { x: 825, y: 257 }, // top-left vertex of core hex
-        fanCenterDeg: -20,           // slightly above due-East
+        // anchor = top-left (idx 5); walk CW around outer edges
+        vertexPath: [5, 0, 1, 2],
         subs: ['REVENUE', 'MARKET\nSHARE', 'ACQUISITION', 'RETENTION', 'GROWTH', 'AUTHORITY']
       },
       strategies: {
         cx: 400, cy: 590,
-        anchor: { x: 475, y: 613 }, // bottom-right vertex of core hex
-        fanCenterDeg: 160,           // slightly below due-West
+        // anchor = bottom-right (idx 2); walk CW around outer edges
+        vertexPath: [2, 3, 4, 5],
         subs: ['CHANNELS', 'TARGETING', 'POSITIONING', 'CONTENT\nPLAN', 'PRICING', 'PRODUCT/\nSERVICE']
       },
       environment: {
         cx: 900, cy: 590,
-        anchor: { x: 825, y: 613 }, // bottom-left vertex of core hex
-        fanCenterDeg: 20,            // slightly below due-East
+        // anchor = bottom-left (idx 4); walk CCW around outer edges
+        vertexPath: [4, 3, 2, 1],
         subs: ['MARKET', 'COMPETITORS', 'AUDIENCES', 'AI/SEARCH', 'INDUSTRY\nTRENDS', 'REGULATORY']
       }
     },
     coreW: 150, coreH: 93,
     subW: 90,  subH: 56,
-    subFanSpanDeg: 150,
-    subDistance: 180
+    // Sub-node distance from the hex edge, with per-slot jitter for an
+    // organic, non-mechanical feel. Length doesn't need to match sub-node
+    // count — the array wraps via modulo.
+    subDistanceBase: 140,
+    subDistanceJitter:  [0, 25, -10, 18, 10, 30],
+    // Lateral offset along the edge tangent — pushes sub-nodes sideways so
+    // adjacent slots on the same edge don't visually stack.
+    subLateralJitter:   [0,  0,   0,  0, -45, 50]
   };
 
-  // Build a hexagon polygon points string centered at (cx, cy)
-  function hexPoints(cx, cy, w, h) {
+  // Return the 6 vertices of a flat-top hex centered at (cx, cy)
+  function hexVertices(cx, cy, w, h) {
     var hw = w / 2, qh = h / 4, hh = h / 2;
     return [
-      cx + ',' + (cy - hh),         // top
-      (cx + hw) + ',' + (cy - qh),  // top-right
-      (cx + hw) + ',' + (cy + qh),  // bottom-right
-      cx + ',' + (cy + hh),         // bottom
-      (cx - hw) + ',' + (cy + qh),  // bottom-left
-      (cx - hw) + ',' + (cy - qh)   // top-left
-    ].join(' ');
+      { x: cx,      y: cy - hh },  // 0: top
+      { x: cx + hw, y: cy - qh },  // 1: top-right
+      { x: cx + hw, y: cy + qh },  // 2: bottom-right
+      { x: cx,      y: cy + hh },  // 3: bottom
+      { x: cx - hw, y: cy + qh },  // 4: bottom-left
+      { x: cx - hw, y: cy - qh }   // 5: top-left
+    ];
   }
 
-  // Compute sub-node position: distance from the anchor vertex, angle within
-  // the fan arc centered on fanCenterDeg. Position 0 is the topmost sub-node
-  // (lowest y), position 5 is the bottommost. To achieve this, we iterate
-  // from the angle that produces the smallest y to the angle that produces
-  // the largest y.
-  function subPosition(core, idx, count) {
-    var halfSpan = MOLECULE.subFanSpanDeg / 2;
-    // Generate all candidate angles in the fan, then sort by resulting y
-    var candidates = [];
-    for (var k = 0; k < count; k++) {
-      var t = k / (count - 1);
-      var deg = (core.fanCenterDeg - halfSpan) + t * MOLECULE.subFanSpanDeg;
-      var rad = deg * Math.PI / 180;
-      candidates.push({
-        x: core.anchor.x + MOLECULE.subDistance * Math.cos(rad),
-        y: core.anchor.y + MOLECULE.subDistance * Math.sin(rad)
-      });
-    }
-    candidates.sort(function (a, b) { return a.y - b.y; }); // top to bottom
-    return candidates[idx];
+  // Build a polygon `points` string from a 6-vertex array
+  function vertsToPoints(verts) {
+    return verts.map(function (v) { return v.x + ',' + v.y; }).join(' ');
+  }
+
+  // Hex points centered at (cx, cy) — convenience wrapper
+  function hexPoints(cx, cy, w, h) {
+    return vertsToPoints(hexVertices(cx, cy, w, h));
+  }
+
+  // Walk along the vertexPath of a core and return the attachment point at
+  // fractional position t (0 = anchor, 1 = end of path). Also returns the
+  // outward normal at that point (perpendicular to the local edge, pointing
+  // away from the core center).
+  function pointOnPerimeter(core, t) {
+    var verts = hexVertices(core.cx, core.cy, MOLECULE.coreW, MOLECULE.coreH);
+    var path = core.vertexPath;
+    var segCount = path.length - 1;
+    var segIdx = Math.min(Math.floor(t * segCount), segCount - 1);
+    var localT = (t * segCount) - segIdx;
+    var a = verts[path[segIdx]];
+    var b = verts[path[segIdx + 1]];
+    var x = a.x + (b.x - a.x) * localT;
+    var y = a.y + (b.y - a.y) * localT;
+    // Outward normal: perpendicular to edge, pointing away from core center
+    var ex = b.x - a.x, ey = b.y - a.y;
+    var len = Math.sqrt(ex * ex + ey * ey) || 1;
+    var n1x = -ey / len, n1y = ex / len;
+    var n2x = ey / len,  n2y = -ex / len;
+    var test1x = x + n1x - core.cx, test1y = y + n1y - core.cy;
+    var test2x = x + n2x - core.cx, test2y = y + n2y - core.cy;
+    var dist1 = test1x * test1x + test1y * test1y;
+    var dist2 = test2x * test2x + test2y * test2y;
+    var nx = dist1 > dist2 ? n1x : n2x;
+    var ny = dist1 > dist2 ? n1y : n2y;
+    return { x: x, y: y, nx: nx, ny: ny };
+  }
+
+  // Compute attach point + sub-node center for a given core and sub-node idx
+  function subLayout(core, idx, count) {
+    var t = count > 1 ? idx / (count - 1) : 0.5;
+    var attach = pointOnPerimeter(core, t);
+    var jitter = MOLECULE.subDistanceJitter[idx % MOLECULE.subDistanceJitter.length] || 0;
+    var dist = MOLECULE.subDistanceBase + jitter;
+    // Tangent direction along the edge — used for a small lateral offset so
+    // adjacent slots on the same edge don't end up stacked at the same y
+    // (or x) when the edge is purely horizontal/vertical.
+    var tx = -attach.ny, ty = attach.nx;
+    var lateralJitter = MOLECULE.subLateralJitter[idx % MOLECULE.subLateralJitter.length] || 0;
+    return {
+      attach: { x: attach.x, y: attach.y },
+      center: {
+        x: attach.x + attach.nx * dist + tx * lateralJitter,
+        y: attach.y + attach.ny * dist + ty * lateralJitter
+      }
+    };
   }
 
   // Render a sub-node label as one or two <tspan> lines.
@@ -323,13 +380,13 @@
     parts.push('<line x1="575" y1="412" x2="475" y2="303" class="bond"/>');
     parts.push('</g>');
 
-    // Sub-bond lines: anchor vertex → sub-node center
+    // Sub-bond lines: per-sub-node attachment point → sub-node center
     parts.push('<g class="sub-bonds" aria-hidden="true">');
     Object.keys(m.cores).forEach(function (key) {
       var core = m.cores[key];
       for (var i = 0; i < core.subs.length; i++) {
-        var p = subPosition(core, i, core.subs.length);
-        parts.push('<line x1="' + core.anchor.x + '" y1="' + core.anchor.y + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" class="sub-bond" data-parent="' + key + '"/>');
+        var sl = subLayout(core, i, core.subs.length);
+        parts.push('<line x1="' + sl.attach.x.toFixed(1) + '" y1="' + sl.attach.y.toFixed(1) + '" x2="' + sl.center.x.toFixed(1) + '" y2="' + sl.center.y.toFixed(1) + '" class="sub-bond" data-parent="' + key + '"/>');
       }
     });
     parts.push('</g>');
@@ -356,8 +413,8 @@
       var core = m.cores[key];
       for (var i = 0; i < core.subs.length; i++) {
         var label = core.subs[i];
-        var p = subPosition(core, i, core.subs.length);
-        var px = p.x, py = p.y;
+        var sl = subLayout(core, i, core.subs.length);
+        var px = sl.center.x, py = sl.center.y;
         parts.push('<g class="sub-node" data-parent="' + key + '" aria-hidden="true">');
         parts.push('<polygon points="' + hexPoints(px, py, m.subW, m.subH) + '" class="sub-node-shape"/>');
         parts.push('<text x="' + px.toFixed(1) + '" y="' + (py + 3).toFixed(1) + '" text-anchor="middle" class="sub-node-label">');
