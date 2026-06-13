@@ -203,53 +203,152 @@
 
   // ---- Molecule SVG --------------------------------------------------------
 
-  function moleculeSVG() {
+  // ---- Molecule layout -----------------------------------------------------
+
+  // Core node positions and sub-node configurations.
+  // 'side' determines which direction the 6 sub-nodes fan out from the core.
+  var MOLECULE = {
+    nucleus: { cx: 650, cy: 435 },
+    cores: {
+      execution:   { cx: 280,  cy: 220, side: 'west',
+                     subs: ['CONTENT', 'PAID MEDIA', 'SEO/GEO', 'EMAIL', 'SOCIAL', 'AI'] },
+      goals:       { cx: 1020, cy: 220, side: 'east',
+                     subs: ['REVENUE', 'MARKET\nSHARE', 'ACQUISITION', 'RETENTION', 'GROWTH', 'AUTHORITY'] },
+      strategies:  { cx: 280,  cy: 650, side: 'west',
+                     subs: ['CHANNELS', 'TARGETING', 'POSITIONING', 'CONTENT\nPLAN', 'PRICING', 'PRODUCT/\nSERVICE'] },
+      environment: { cx: 1020, cy: 650, side: 'east',
+                     subs: ['MARKET', 'COMPETITORS', 'AUDIENCES', 'AI/SEARCH', 'INDUSTRY\nTRENDS', 'REGULATORY'] }
+    },
+    coreW: 150, coreH: 93,
+    subW: 90,  subH: 56,
+    subRadius: 160
+  };
+
+  // Build a hexagon polygon points string centered at (cx, cy)
+  function hexPoints(cx, cy, w, h) {
+    var hw = w / 2, qh = h / 4, hh = h / 2;
     return [
-      '<svg viewBox="0 0 680 560" role="img" aria-labelledby="mol-title mol-desc" class="molecule">',
-        '<title id="mol-title">The Brand DNA Ecosystem</title>',
-        '<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes: Goals, Environment, Strategies, and Execution. Hover or click any node to see its description.</desc>',
+      cx + ',' + (cy - hh),         // top
+      (cx + hw) + ',' + (cy - qh),  // top-right
+      (cx + hw) + ',' + (cy + qh),  // bottom-right
+      cx + ',' + (cy + hh),         // bottom
+      (cx - hw) + ',' + (cy + qh),  // bottom-left
+      (cx - hw) + ',' + (cy - qh)   // top-left
+    ].join(' ');
+  }
 
-        '<g class="feedback-loop" aria-hidden="true">',
-          '<path d="M 540,90 Q 660,230 615,373" class="loop-arc" fill="none"/>',
-          '<path d="M 540,510 Q 340,640 140,510" class="loop-arc" fill="none"/>',
-          '<path d="M 65,373 Q 20,230 140,90" class="loop-arc" fill="none"/>',
-          '<path d="M 215,90 Q 340,30 465,90" class="loop-arc" fill="none"/>',
-        '</g>',
+  // Compute sub-node position for a core node — 180° arc on the outer side
+  function subPosition(core, idx, count) {
+    var startDeg, endDeg;
+    if (core.side === 'west') {
+      // arc from top (north) around through west to bottom (south)
+      startDeg = -90; endDeg = -270;
+    } else {
+      // arc from top (north) around through east to bottom (south)
+      startDeg = -90; endDeg = 90;
+    }
+    var t = idx / (count - 1);
+    var deg = startDeg + t * (endDeg - startDeg);
+    var rad = deg * Math.PI / 180;
+    return {
+      x: core.cx + MOLECULE.subRadius * Math.cos(rad),
+      y: core.cy + MOLECULE.subRadius * Math.sin(rad)
+    };
+  }
 
-        '<g class="bonds" aria-hidden="true">',
-          '<line x1="415" y1="280" x2="465" y2="230" class="bond"/>',
-          '<line x1="415" y1="323" x2="465" y2="373" class="bond"/>',
-          '<line x1="265" y1="323" x2="215" y2="373" class="bond"/>',
-          '<line x1="265" y1="280" x2="215" y2="230" class="bond"/>',
-        '</g>',
+  // Render a sub-node label as one or two <tspan> lines.
+  function subLabelTspans(label, cx, cy) {
+    if (label.indexOf('\n') === -1) {
+      // single-line label; use a smaller font on extra-long single words
+      var tightWord = (label.length >= 11);
+      var fontAttr = tightWord ? ' style="font-size:8px;letter-spacing:.04em"' : '';
+      return '<tspan x="' + cx + '" dy="0"' + fontAttr + '>' + esc(label) + '</tspan>';
+    }
+    // two-line label
+    var parts = label.split('\n');
+    return '<tspan x="' + cx + '" dy="-4">' + esc(parts[0]) + '</tspan>' +
+           '<tspan x="' + cx + '" dy="12">' + esc(parts[1]) + '</tspan>';
+  }
 
-        '<g class="node nucleus" data-node="nucleus" tabindex="0" role="button" aria-label="Brand DNA">',
-          '<polygon points="340,255 415,278 415,325 340,348 265,325 265,278" class="node-shape"/>',
-          '<text x="340" y="308" text-anchor="middle" class="node-label nucleus-label">BRAND DNA</text>',
-        '</g>',
+  function moleculeSVG() {
+    var m = MOLECULE;
+    var parts = [];
 
-        '<g class="node core" data-node="goals" tabindex="0" role="button" aria-label="Goals">',
-          '<polygon points="540,160 615,183 615,230 540,253 465,230 465,183" class="node-shape"/>',
-          '<text x="540" y="214" text-anchor="middle" class="node-label core-label">GOALS</text>',
-        '</g>',
+    parts.push('<svg viewBox="0 0 1300 870" role="img" aria-labelledby="mol-title mol-desc" class="molecule">');
+    parts.push('<title id="mol-title">The Brand DNA Ecosystem</title>');
+    parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
-        '<g class="node core" data-node="environment" tabindex="0" role="button" aria-label="Environment">',
-          '<polygon points="540,350 615,373 615,420 540,443 465,420 465,373" class="node-shape"/>',
-          '<text x="540" y="404" text-anchor="middle" class="node-label core-label env">ENVIRONMENT</text>',
-        '</g>',
+    // Feedback loop arcs — subtle background, rescaled for new viewBox
+    parts.push('<g class="feedback-loop" aria-hidden="true">');
+    parts.push('<path d="M 1080,140 Q 1280,435 1180,720" class="loop-arc" fill="none"/>');
+    parts.push('<path d="M 1020,810 Q 650,910 280,810" class="loop-arc" fill="none"/>');
+    parts.push('<path d="M 220,720 Q 20,435 120,140" class="loop-arc" fill="none"/>');
+    parts.push('<path d="M 380,60 Q 650,-20 920,60" class="loop-arc" fill="none"/>');
+    parts.push('</g>');
 
-        '<g class="node core" data-node="strategies" tabindex="0" role="button" aria-label="Strategies">',
-          '<polygon points="140,350 215,373 215,420 140,443 65,420 65,373" class="node-shape"/>',
-          '<text x="140" y="404" text-anchor="middle" class="node-label core-label">STRATEGIES</text>',
-        '</g>',
+    // Bond lines: nucleus vertices → core node inner vertices
+    // Nucleus hex at (650, 435) with width 150 / height 93:
+    //   top-right vertex = (725, 412), bottom-right = (725, 458)
+    //   bottom-left = (575, 458), top-left = (575, 412)
+    // Each core hex inner vertex = the vertex facing the nucleus
+    //   Goals (1020, 220):       bottom-left inner = (945, 243)
+    //   Environment (1020, 650): top-left inner   = (945, 627)
+    //   Strategies (280, 650):   top-right inner  = (355, 627)
+    //   Execution (280, 220):    bottom-right inner = (355, 243)
+    parts.push('<g class="bonds" aria-hidden="true">');
+    parts.push('<line x1="725" y1="412" x2="945" y2="243" class="bond"/>');
+    parts.push('<line x1="725" y1="458" x2="945" y2="627" class="bond"/>');
+    parts.push('<line x1="575" y1="458" x2="355" y2="627" class="bond"/>');
+    parts.push('<line x1="575" y1="412" x2="355" y2="243" class="bond"/>');
+    parts.push('</g>');
 
-        '<g class="node core" data-node="execution" tabindex="0" role="button" aria-label="Execution">',
-          '<polygon points="140,160 215,183 215,230 140,253 65,230 65,183" class="node-shape"/>',
-          '<text x="140" y="214" text-anchor="middle" class="node-label core-label">EXECUTION</text>',
-        '</g>',
+    // Sub-bond lines: core node center → sub-node center
+    // (Drawn before sub-node hexes so the fills cover line endpoints)
+    parts.push('<g class="sub-bonds" aria-hidden="true">');
+    Object.keys(m.cores).forEach(function (key) {
+      var core = m.cores[key];
+      for (var i = 0; i < core.subs.length; i++) {
+        var p = subPosition(core, i, core.subs.length);
+        parts.push('<line x1="' + core.cx + '" y1="' + core.cy + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" class="sub-bond" data-parent="' + key + '"/>');
+      }
+    });
+    parts.push('</g>');
 
-      '</svg>'
-    ].join('');
+    // Nucleus
+    parts.push('<g class="node nucleus" data-node="nucleus" tabindex="0" role="button" aria-label="Brand DNA">');
+    parts.push('<polygon points="' + hexPoints(m.nucleus.cx, m.nucleus.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
+    parts.push('<text x="' + m.nucleus.cx + '" y="' + (m.nucleus.cy + 8) + '" text-anchor="middle" class="node-label nucleus-label">BRAND DNA</text>');
+    parts.push('</g>');
+
+    // Core nodes
+    Object.keys(m.cores).forEach(function (key) {
+      var core = m.cores[key];
+      var label = key.toUpperCase();
+      var labelClass = (label === 'ENVIRONMENT') ? 'node-label core-label env' : 'node-label core-label';
+      parts.push('<g class="node core" data-node="' + key + '" tabindex="0" role="button" aria-label="' + esc(label.charAt(0) + label.slice(1).toLowerCase()) + '">');
+      parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
+      parts.push('<text x="' + core.cx + '" y="' + (core.cy + 6) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
+      parts.push('</g>');
+    });
+
+    // Sub-nodes
+    Object.keys(m.cores).forEach(function (key) {
+      var core = m.cores[key];
+      for (var i = 0; i < core.subs.length; i++) {
+        var label = core.subs[i];
+        var p = subPosition(core, i, core.subs.length);
+        var px = p.x, py = p.y;
+        parts.push('<g class="sub-node" data-parent="' + key + '" aria-hidden="true">');
+        parts.push('<polygon points="' + hexPoints(px, py, m.subW, m.subH) + '" class="sub-node-shape"/>');
+        parts.push('<text x="' + px.toFixed(1) + '" y="' + (py + 3).toFixed(1) + '" text-anchor="middle" class="sub-node-label">');
+        parts.push(subLabelTspans(label, px.toFixed(1), py.toFixed(1)));
+        parts.push('</text>');
+        parts.push('</g>');
+      }
+    });
+
+    parts.push('</svg>');
+    return parts.join('');
   }
 
   // ---- Interactions --------------------------------------------------------
@@ -272,9 +371,20 @@
       ].join('');
       panel.classList.add('active');
       loop.classList.add('engaged');
+      // Core nodes: active vs dimmed based on data-node
       svg.querySelectorAll('.node').forEach(function (g) {
         g.classList.toggle('active', g.getAttribute('data-node') === key);
         g.classList.toggle('dimmed', g.getAttribute('data-node') !== key);
+      });
+      // Sub-nodes: active if parent matches, dimmed otherwise
+      svg.querySelectorAll('.sub-node').forEach(function (g) {
+        g.classList.toggle('active', g.getAttribute('data-parent') === key);
+        g.classList.toggle('dimmed', g.getAttribute('data-parent') !== key);
+      });
+      // Sub-bond lines: same as sub-nodes
+      svg.querySelectorAll('.sub-bond').forEach(function (g) {
+        g.classList.toggle('active', g.getAttribute('data-parent') === key);
+        g.classList.toggle('dimmed', g.getAttribute('data-parent') !== key);
       });
     }
 
@@ -287,7 +397,7 @@
       ].join('');
       panel.classList.remove('active');
       loop.classList.remove('engaged');
-      svg.querySelectorAll('.node').forEach(function (g) {
+      svg.querySelectorAll('.node, .sub-node, .sub-bond').forEach(function (g) {
         g.classList.remove('active', 'dimmed');
       });
     }
