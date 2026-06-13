@@ -278,14 +278,6 @@
     parts.push('<title id="mol-title">The Brand DNA Ecosystem</title>');
     parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
-    // Feedback loop arcs — subtle background, rescaled for new viewBox
-    parts.push('<g class="feedback-loop" aria-hidden="true">');
-    parts.push('<path d="M 1080,140 Q 1280,435 1180,720" class="loop-arc" fill="none"/>');
-    parts.push('<path d="M 1020,810 Q 650,910 280,810" class="loop-arc" fill="none"/>');
-    parts.push('<path d="M 220,720 Q 20,435 120,140" class="loop-arc" fill="none"/>');
-    parts.push('<path d="M 380,60 Q 650,-20 920,60" class="loop-arc" fill="none"/>');
-    parts.push('</g>');
-
     // Bond lines: nucleus vertices → core node inner vertices
     // Nucleus hex at (650, 435) with width 150 / height 93:
     //   top-right vertex = (725, 412), bottom-right = (725, 458)
@@ -356,7 +348,6 @@
   function wireInteractions(root) {
     var svg = root.querySelector('.molecule');
     var panel = root.querySelector('#info-panel');
-    var loop = root.querySelector('.feedback-loop');
     if (!svg || !panel) return;
 
     var lockedNode = null;
@@ -370,7 +361,6 @@
         '<div class="info-body">' + esc(n.body) + '</div>'
       ].join('');
       panel.classList.add('active');
-      loop.classList.add('engaged');
       // Core nodes: active vs dimmed based on data-node
       svg.querySelectorAll('.node').forEach(function (g) {
         g.classList.toggle('active', g.getAttribute('data-node') === key);
@@ -396,7 +386,6 @@
         '</div>'
       ].join('');
       panel.classList.remove('active');
-      loop.classList.remove('engaged');
       svg.querySelectorAll('.node, .sub-node, .sub-bond').forEach(function (g) {
         g.classList.remove('active', 'dimmed');
       });
