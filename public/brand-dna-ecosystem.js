@@ -145,20 +145,20 @@
   function feedbackHTML() {
     var flows = [
       {
-        from: 'Execution', to: 'Strategies', type: 'Continuous loop',
-        body: 'Performance data and audience signal teach us which strategies are working. Strategy mix gets adjusted continuously to favor what delivers.'
-      },
-      {
-        from: 'Environment', to: 'Strategies', type: 'Exogenous shift',
-        body: 'When the world moves — competitor, platform, audience, regulation — the right strategies may change even when execution is fine. Environment is the input we respond to, not control.'
+        from: 'Business decisions', to: 'Goals', type: 'Resetting',
+        body: 'Comes from outside the system. Leadership decides on growth phase, revenue targets, market expansion. The marketing system operates against these — it doesn\'t set them.'
       },
       {
         from: 'Strategies + Environment', to: 'Goals', type: 'Recalibration',
         body: 'Goals don\'t shift on a bad week. But when Environment has moved significantly or Strategies can\'t deliver against current Goals, the Goals themselves get recalibrated. Quarterly or semi-annually.'
       },
       {
-        from: 'Business decisions', to: 'Goals', type: 'Resetting',
-        body: 'Comes from outside the system. Leadership decides on growth phase, revenue targets, market expansion. The marketing system operates against these — it doesn\'t set them.'
+        from: 'Environment', to: 'Strategies', type: 'Exogenous shift',
+        body: 'When the world moves — competitor, platform, audience, regulation — the right strategies may change even when execution is fine. Environment is the input we respond to, not control.'
+      },
+      {
+        from: 'Execution', to: 'Strategies', type: 'Continuous loop',
+        body: 'Performance data and audience signal teach us which strategies are working. Strategy mix gets adjusted continuously to favor what delivers.'
       }
     ];
     var cards = flows.map(function (f) {
@@ -174,7 +174,7 @@
       '<section class="page-section">',
         '<div class="section-label">The Feedback Loop</div>',
         '<p class="section-opener">How your Brand DNA model learns.</p>',
-        '<p class="prose">The four orbital nodes iterate. Execution teaches Strategies. Environment shifts reshape both Strategies and Goals. Brand DNA at the center holds — it\'s the filter every change passes through, not something that updates with each cycle. The DNA is revisited only on major business events: new market, new leadership, true repositioning.</p>',
+        '<p class="prose">The four orbital nodes iterate. Goals get reset by leadership and recalibrated by what Strategies and Environment reveal; Strategies adjust to Environment shifts and to Execution data. Brand DNA at the center holds — it\'s the filter every change passes through, not something that updates with each cycle. The DNA is revisited only on major business events: new market, new leadership, true repositioning.</p>',
         '<div class="flow-grid">' + cards + '</div>',
         '<div class="callout">',
           '<div class="callout-label">The operating difference</div>',
