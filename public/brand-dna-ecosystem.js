@@ -592,7 +592,9 @@
     function showNode(key) {
       var n = NODES[key];
       if (!n) return;
+      var tagText = key === 'nucleus' ? 'Nucleus' : 'Core Node ' + (MOLECULE.coreNumbers[key] || '');
       panel.innerHTML = [
+        '<div class="info-node-tag">' + esc(tagText) + '</div>',
         '<div class="info-node-label">' + esc(n.label) + '</div>',
         '<div class="info-opener">' + esc(n.opener) + '</div>',
         '<div class="info-body">' + esc(n.body) + '</div>'
