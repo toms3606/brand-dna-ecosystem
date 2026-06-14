@@ -419,9 +419,9 @@
       parts.push('<g class="node core" data-node="' + key + '" tabindex="0" role="button" aria-label="' + esc(label.charAt(0) + label.slice(1).toLowerCase()) + '">');
       parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
       if (number) {
-        parts.push('<text x="' + core.cx + '" y="' + (core.cy - 8) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
+        parts.push('<text x="' + core.cx + '" y="' + (core.cy - 10) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
       }
-      parts.push('<text x="' + core.cx + '" y="' + (core.cy + 13) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
+      parts.push('<text x="' + core.cx + '" y="' + (core.cy + 14) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
       parts.push('</g>');
     });
 
@@ -491,9 +491,9 @@
     parts.push('<g class="node core">');
     parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
     if (number) {
-      parts.push('<text x="' + core.cx + '" y="' + (core.cy - 8) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
+      parts.push('<text x="' + core.cx + '" y="' + (core.cy - 10) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
     }
-    parts.push('<text x="' + core.cx + '" y="' + (core.cy + 13) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
+    parts.push('<text x="' + core.cx + '" y="' + (core.cy + 14) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
     parts.push('</g>');
 
     // Sub-nodes (default styling — white fill, hairline outline)
