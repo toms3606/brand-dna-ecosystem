@@ -1,6 +1,6 @@
 /* brand-dna-ecosystem.js — The Brand DNA Ecosystem
  *
- * v3 — CSS extracted to a Squarespace Code block. This file only inject
+ * v3 — CSS extracted to a Squarespace Code block. This file only injects
  * markup, fonts, and interactions. CSS lives in the page itself so it
  * wins specificity against Squarespace defaults without needing !important.
  *
@@ -521,6 +521,73 @@
     if (!svg || !panel) return;
 
     var lockedNode = null;
+    var currentVB = null;
+    var defaultVB = svg.getAttribute('viewBox');
+    var animFrame = null;
+
+    function parseVB(s) {
+      var p = s.trim().split(/\s+/).map(parseFloat);
+      return { x: p[0], y: p[1], w: p[2], h: p[3] };
+    }
+
+    function focusVBFor(key) {
+      var m = MOLECULE;
+      var core = m.cores[key];
+      if (!core) return null;
+      var minX = core.cx - m.coreW / 2;
+      var maxX = core.cx + m.coreW / 2;
+      var minY = core.cy - m.coreH / 2;
+      var maxY = core.cy + m.coreH / 2;
+      for (var i = 0; i < core.subs.length; i++) {
+        var sl = subLayout(core, i, core.subs.length, m.nucleus);
+        minX = Math.min(minX, sl.center.x - m.subW / 2);
+        maxX = Math.max(maxX, sl.center.x + m.subW / 2);
+        minY = Math.min(minY, sl.center.y - m.subH / 2);
+        maxY = Math.max(maxY, sl.center.y + m.subH / 2);
+      }
+      var pad = 24;
+      // Match the aspect ratio of the default viewBox so the SVG slot
+      // on the page doesn't visually jitter.
+      var d = parseVB(defaultVB);
+      var defAspect = d.w / d.h;
+      var bw = (maxX - minX) + 2 * pad;
+      var bh = (maxY - minY) + 2 * pad;
+      var bAspect = bw / bh;
+      if (bAspect > defAspect) {
+        // too wide — grow height
+        var newH = bw / defAspect;
+        var cy = (minY + maxY) / 2;
+        return { x: minX - pad, y: cy - newH / 2, w: bw, h: newH };
+      } else {
+        // too tall — grow width
+        var newW = bh * defAspect;
+        var cx = (minX + maxX) / 2;
+        return { x: cx - newW / 2, y: minY - pad, w: newW, h: bh };
+      }
+    }
+
+    function animateVB(targetStr, duration) {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      var start = parseVB(currentVB || svg.getAttribute('viewBox'));
+      var end = parseVB(targetStr);
+      var t0 = null;
+      function step(t) {
+        if (t0 === null) t0 = t;
+        var p = Math.min(1, (t - t0) / duration);
+        // ease-in-out cubic
+        var e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+        var x = start.x + (end.x - start.x) * e;
+        var y = start.y + (end.y - start.y) * e;
+        var w = start.w + (end.w - start.w) * e;
+        var h = start.h + (end.h - start.h) * e;
+        var vb = x + ' ' + y + ' ' + w + ' ' + h;
+        svg.setAttribute('viewBox', vb);
+        currentVB = vb;
+        if (p < 1) animFrame = requestAnimationFrame(step);
+        else animFrame = null;
+      }
+      animFrame = requestAnimationFrame(step);
+    }
 
     function showNode(key) {
       var n = NODES[key];
@@ -531,29 +598,35 @@
         '<div class="info-body">' + esc(n.body) + '</div>'
       ].join('');
       panel.classList.add('active');
-      // Core nodes: active vs dimmed based on data-node
       svg.querySelectorAll('.node').forEach(function (g) {
         g.classList.toggle('active', g.getAttribute('data-node') === key);
         g.classList.toggle('dimmed', g.getAttribute('data-node') !== key);
       });
-      // Sub-nodes: active if parent matches, dimmed otherwise
       svg.querySelectorAll('.sub-node').forEach(function (g) {
         g.classList.toggle('active', g.getAttribute('data-parent') === key);
         g.classList.toggle('dimmed', g.getAttribute('data-parent') !== key);
       });
-      // Sub-bond lines: same as sub-nodes
       svg.querySelectorAll('.sub-bond').forEach(function (g) {
         g.classList.toggle('active', g.getAttribute('data-parent') === key);
         g.classList.toggle('dimmed', g.getAttribute('data-parent') !== key);
       });
-      // Bring the active group to the front via DOM reorder. SVG paints in
-      // document order, so appending elements moves them above the rest.
-      // Order matters: active sub-bonds first (so they're behind their
-      // hexes), then the active core node, then active sub-nodes.
+      svg.querySelectorAll('.bond').forEach(function (g) {
+        g.classList.add('dimmed');
+      });
       svg.querySelectorAll('.sub-bond.active').forEach(function (g) { svg.appendChild(g); });
       var activeCore = svg.querySelector('.node.active');
       if (activeCore) svg.appendChild(activeCore);
       svg.querySelectorAll('.sub-node.active').forEach(function (g) { svg.appendChild(g); });
+    }
+
+    function focusNode(key) {
+      // Only the 4 orbital cores have a focus zoom — the nucleus stays in place.
+      showNode(key);
+      var fvb = focusVBFor(key);
+      if (fvb) {
+        var target = fvb.x.toFixed(1) + ' ' + fvb.y.toFixed(1) + ' ' + fvb.w.toFixed(1) + ' ' + fvb.h.toFixed(1);
+        animateVB(target, 300);
+      }
     }
 
     function clearNode() {
@@ -564,11 +637,28 @@
         '</div>'
       ].join('');
       panel.classList.remove('active');
-      svg.querySelectorAll('.node, .sub-node, .sub-bond').forEach(function (g) {
+      svg.querySelectorAll('.node, .sub-node, .sub-bond, .bond').forEach(function (g) {
         g.classList.remove('active', 'dimmed');
       });
+      // Animate back to the default viewBox
+      animateVB(defaultVB, 300);
     }
 
+    function toggleLock(key) {
+      if (lockedNode === key) {
+        lockedNode = null;
+        clearNode();
+      } else {
+        lockedNode = key;
+        if (key === 'nucleus') {
+          showNode(key);
+        } else {
+          focusNode(key);
+        }
+      }
+    }
+
+    // Core node interactions
     svg.querySelectorAll('.node').forEach(function (g) {
       var key = g.getAttribute('data-node');
 
@@ -584,13 +674,7 @@
 
       g.addEventListener('click', function (e) {
         e.stopPropagation();
-        if (lockedNode === key) {
-          lockedNode = null;
-          clearNode();
-        } else {
-          lockedNode = key;
-          showNode(key);
-        }
+        toggleLock(key);
       });
 
       g.addEventListener('keydown', function (e) {
@@ -601,10 +685,22 @@
       });
     });
 
+    // Sub-node click → focus on parent core (no separate info content)
+    svg.querySelectorAll('.sub-node').forEach(function (g) {
+      g.style.cursor = 'pointer';
+      g.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var parentKey = g.getAttribute('data-parent');
+        if (parentKey) toggleLock(parentKey);
+      });
+    });
+
     document.addEventListener('click', function (e) {
-      if (!e.target.closest('.node') && !e.target.closest('.info-panel')) {
-        lockedNode = null;
-        clearNode();
+      if (!e.target.closest('.node') && !e.target.closest('.sub-node') && !e.target.closest('.info-panel')) {
+        if (lockedNode) {
+          lockedNode = null;
+          clearNode();
+        }
       }
     });
   }
