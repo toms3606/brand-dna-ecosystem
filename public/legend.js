@@ -24,16 +24,16 @@
 (function () {
   'use strict';
 
-  // Geometry. Coordinates relative to nucleus at (650, 510). The legend uses
-  // a tighter cluster than the main Ecosystem molecule since no sub-nodes
-  // are shown — cores are pulled closer and hexes scaled up for legibility.
+  // Geometry. Coordinates relative to nucleus at (650, 510). Cores sit at
+  // offset (±285, ±210) from the nucleus — 50% further out than the prior
+  // legend tuning, giving each hex more visual breathing room from the core.
   var COORDS = {
     nucleus: { cx: 650, cy: 510 },
     cores: {
-      execution:   { cx: 460, cy: 370, label: 'EXECUTION',   number: '04' },
-      goals:       { cx: 840, cy: 370, label: 'GOALS',       number: '01' },
-      strategies:  { cx: 460, cy: 650, label: 'STRATEGIES',  number: '03' },
-      environment: { cx: 840, cy: 650, label: 'ENVIRONMENT', number: '02' }
+      execution:   { cx: 365, cy: 300, label: 'EXECUTION',   number: '04' },
+      goals:       { cx: 935, cy: 300, label: 'GOALS',       number: '01' },
+      strategies:  { cx: 365, cy: 720, label: 'STRATEGIES',  number: '03' },
+      environment: { cx: 935, cy: 720, label: 'ENVIRONMENT', number: '02' }
     },
     coreW: 180, coreH: 112
   };
@@ -43,15 +43,15 @@
   //   top-right (740,482), bottom-right (740,538),
   //   bottom-left (560,538), top-left (560,482)
   // Core inner vertices (the one facing nucleus):
-  //   Goals (840,370) bottom-left   = (750, 398)
-  //   Environment (840,650) top-left = (750, 622)
-  //   Strategies (460,650) top-right = (550, 622)
-  //   Execution (460,370) bottom-right = (550, 398)
+  //   Goals (935,300) bottom-left   = (845, 328)
+  //   Environment (935,720) top-left = (845, 692)
+  //   Strategies (365,720) top-right = (455, 692)
+  //   Execution (365,300) bottom-right = (455, 328)
   var BONDS = [
-    { x1: 740, y1: 482, x2: 750, y2: 398 }, // BDNA → Goals
-    { x1: 740, y1: 538, x2: 750, y2: 622 }, // BDNA → Environment
-    { x1: 560, y1: 538, x2: 550, y2: 622 }, // BDNA → Strategies
-    { x1: 560, y1: 482, x2: 550, y2: 398 }  // BDNA → Execution
+    { x1: 740, y1: 482, x2: 845, y2: 328 }, // BDNA → Goals
+    { x1: 740, y1: 538, x2: 845, y2: 692 }, // BDNA → Environment
+    { x1: 560, y1: 538, x2: 455, y2: 692 }, // BDNA → Strategies
+    { x1: 560, y1: 482, x2: 455, y2: 328 }  // BDNA → Execution
   ];
 
   var DEFAULT_LINK = 'https://westwardmarketinglab.com/brand-dna-ecosystem';
@@ -76,7 +76,7 @@
   }
 
   function buildSVG(highlight) {
-    var vb = '330 280 640 480';
+    var vb = '240 210 820 600';
     var parts = [];
     parts.push('<svg viewBox="' + vb + '" class="bdna-legend-svg" role="img" aria-label="Brand DNA Ecosystem Legend" xmlns="http://www.w3.org/2000/svg">');
 
