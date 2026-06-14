@@ -24,27 +24,38 @@
 (function () {
   'use strict';
 
-  // Geometry mirrors the main Ecosystem molecule. Coordinates are kept
-  // identical so the legend reads as a smaller version of the same diagram.
+  // Geometry. Coordinates relative to nucleus at (650, 510). The legend uses
+  // a tighter cluster than the main Ecosystem molecule since no sub-nodes
+  // are shown — cores are pulled closer and hexes scaled up for legibility.
   var COORDS = {
     nucleus: { cx: 650, cy: 510 },
     cores: {
-      execution:   { cx: 360, cy: 240, label: 'EXECUTION',   number: '04' },
-      goals:       { cx: 940, cy: 240, label: 'GOALS',       number: '01' },
-      strategies:  { cx: 360, cy: 780, label: 'STRATEGIES',  number: '03' },
-      environment: { cx: 940, cy: 780, label: 'ENVIRONMENT', number: '02' }
+      execution:   { cx: 460, cy: 370, label: 'EXECUTION',   number: '04' },
+      goals:       { cx: 840, cy: 370, label: 'GOALS',       number: '01' },
+      strategies:  { cx: 460, cy: 650, label: 'STRATEGIES',  number: '03' },
+      environment: { cx: 840, cy: 650, label: 'ENVIRONMENT', number: '02' }
     },
-    coreW: 150, coreH: 93
+    coreW: 180, coreH: 112
   };
 
+  // Bond endpoints: BDNA outer vertices → core inner vertices.
+  // Nucleus 180×112 at (650, 510):
+  //   top-right (740,482), bottom-right (740,538),
+  //   bottom-left (560,538), top-left (560,482)
+  // Core inner vertices (the one facing nucleus):
+  //   Goals (840,370) bottom-left   = (750, 398)
+  //   Environment (840,650) top-left = (750, 622)
+  //   Strategies (460,650) top-right = (550, 622)
+  //   Execution (460,370) bottom-right = (550, 398)
   var BONDS = [
-    { x1: 725, y1: 487, x2: 865, y2: 263 }, // BDNA → Goals
-    { x1: 725, y1: 533, x2: 865, y2: 757 }, // BDNA → Environment
-    { x1: 575, y1: 533, x2: 435, y2: 757 }, // BDNA → Strategies
-    { x1: 575, y1: 487, x2: 435, y2: 263 }  // BDNA → Execution
+    { x1: 740, y1: 482, x2: 750, y2: 398 }, // BDNA → Goals
+    { x1: 740, y1: 538, x2: 750, y2: 622 }, // BDNA → Environment
+    { x1: 560, y1: 538, x2: 550, y2: 622 }, // BDNA → Strategies
+    { x1: 560, y1: 482, x2: 550, y2: 398 }  // BDNA → Execution
   ];
 
   var DEFAULT_LINK = 'https://westwardmarketinglab.com/brand-dna-ecosystem';
+  var DEFAULT_SECTION_LABEL = 'How this audit fits into the Brand DNA Ecosystem';
 
   function hexPoints(cx, cy, w, h) {
     var hw = w / 2, qh = h / 4, hh = h / 2;
@@ -65,9 +76,7 @@
   }
 
   function buildSVG(highlight) {
-    // viewBox crops to just the nucleus + 4 cores (no sub-nodes shown).
-    // Calculated to give ~40px padding around the outermost hexes.
-    var vb = '270 180 760 660';
+    var vb = '330 280 640 480';
     var parts = [];
     parts.push('<svg viewBox="' + vb + '" class="bdna-legend-svg" role="img" aria-label="Brand DNA Ecosystem Legend" xmlns="http://www.w3.org/2000/svg">');
 
@@ -79,17 +88,18 @@
     var nClass = highlight === 'nucleus' ? 'bdna-legend-nucleus highlight' : 'bdna-legend-nucleus';
     parts.push('<g class="' + nClass + '">');
     parts.push('<polygon points="' + hexPoints(COORDS.nucleus.cx, COORDS.nucleus.cy, COORDS.coreW, COORDS.coreH) + '"/>');
-    parts.push('<text x="' + COORDS.nucleus.cx + '" y="' + (COORDS.nucleus.cy + 7) + '" text-anchor="middle">BRAND DNA</text>');
+    parts.push('<text x="' + COORDS.nucleus.cx + '" y="' + (COORDS.nucleus.cy + 8) + '" text-anchor="middle">BRAND DNA</text>');
     parts.push('</g>');
 
     // Cores
     Object.keys(COORDS.cores).forEach(function (key) {
       var c = COORDS.cores[key];
       var cls = highlight === key ? 'bdna-legend-core highlight' : 'bdna-legend-core';
+      if (key === 'environment') cls += ' env';
       parts.push('<g class="' + cls + '">');
       parts.push('<polygon points="' + hexPoints(c.cx, c.cy, COORDS.coreW, COORDS.coreH) + '"/>');
-      parts.push('<text x="' + c.cx + '" y="' + (c.cy - 9) + '" text-anchor="middle" class="bdna-legend-num">' + c.number + '</text>');
-      parts.push('<text x="' + c.cx + '" y="' + (c.cy + 14) + '" text-anchor="middle" class="bdna-legend-label">' + c.label + '</text>');
+      parts.push('<text x="' + c.cx + '" y="' + (c.cy - 13) + '" text-anchor="middle" class="bdna-legend-num">' + c.number + '</text>');
+      parts.push('<text x="' + c.cx + '" y="' + (c.cy + 17) + '" text-anchor="middle" class="bdna-legend-label">' + c.label + '</text>');
       parts.push('</g>');
     });
 
@@ -107,14 +117,14 @@
       '.bdna-legend-bond { stroke: #0F6E56; stroke-width: 1.5; opacity: 0.55; fill: none; }',
       '.bdna-legend-nucleus polygon { fill: #B8DDD0; stroke: #0F6E56; stroke-width: 1.5; transition: fill 0.2s, stroke-width 0.2s; }',
       '.bdna-legend-nucleus.highlight polygon { fill: #1B5E4A; stroke: #0F6E56; stroke-width: 3; }',
-      '.bdna-legend-nucleus text { font-family: "DM Mono", "Menlo", monospace; font-size: 22px; font-weight: 700; fill: #085041; letter-spacing: 0.10em; }',
+      '.bdna-legend-nucleus text { font-family: "DM Mono", "Menlo", monospace; font-size: 24px; font-weight: 700; fill: #085041; letter-spacing: 0.10em; }',
       '.bdna-legend-nucleus.highlight text { fill: #E1F5EE; }',
       '.bdna-legend-core polygon { fill: #FFFFFF; stroke: #0F6E56; stroke-width: 1.5; transition: fill 0.2s, stroke-width 0.2s; }',
       '.bdna-legend-core.highlight polygon { fill: #C8E5DA; stroke: #0F6E56; stroke-width: 3; }',
-      '.bdna-legend-num { font-family: "DM Mono", "Menlo", monospace; font-size: 13px; font-weight: 600; fill: #085041; opacity: 0.7; letter-spacing: 0.14em; }',
+      '.bdna-legend-num { font-family: "DM Mono", "Menlo", monospace; font-size: 14px; font-weight: 600; fill: #085041; opacity: 0.7; letter-spacing: 0.14em; }',
       '.bdna-legend-core.highlight .bdna-legend-num { opacity: 1; }',
-      '.bdna-legend-label { font-family: "DM Mono", "Menlo", monospace; font-size: 19px; font-weight: 700; fill: #085041; letter-spacing: 0.10em; }',
-      '.bdna-legend-core.env .bdna-legend-label { letter-spacing: 0.04em; }',
+      '.bdna-legend-label { font-family: "DM Mono", "Menlo", monospace; font-size: 22px; font-weight: 700; fill: #085041; letter-spacing: 0.10em; }',
+      '.bdna-legend-core.env .bdna-legend-label { letter-spacing: 0.03em; }',
       '.bdna-legend-caption { font-size: 14px; color: #4a5a52; line-height: 1.55; margin: 18px auto 0; max-width: 460px; font-family: "DM Sans", system-ui, sans-serif; }',
       '.bdna-legend-cta { display: inline-block; margin-top: 14px; font-family: "DM Mono", "Menlo", monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #0F6E56; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }',
       '.bdna-legend-link-block:hover .bdna-legend-cta { color: #053a2c; }'
@@ -133,7 +143,8 @@
     var caption = opts.caption || null;
     var linkBack = opts.linkBack !== false;
     var linkUrl = opts.linkUrl || DEFAULT_LINK;
-    var sectionLabel = opts.sectionLabel || 'Part of the Ecosystem';
+    // sectionLabel: undefined → use default; explicit '' → omit; string → use that string
+    var sectionLabel = (opts.sectionLabel === undefined) ? DEFAULT_SECTION_LABEL : opts.sectionLabel;
 
     injectStyles();
 
@@ -159,14 +170,19 @@
       render(el, {
         highlight: el.getAttribute('data-highlight'),
         caption: el.getAttribute('data-caption'),
-        sectionLabel: el.getAttribute('data-section-label') || undefined,
+        // hasAttribute test lets data-section-label="" mean "no label"
+        sectionLabel: el.hasAttribute('data-section-label') ? el.getAttribute('data-section-label') : undefined,
         linkBack: el.getAttribute('data-linkback') !== 'false',
         linkUrl: el.getAttribute('data-linkurl') || undefined
       });
     }
   }
 
-  window.bdnaEcosystemLegend = { render: render };
+  // Public API: render(el, opts) for explicit single-element rendering;
+  // init() to (re-)scan the document for any [data-bdna-ecosystem-legend]
+  // elements and render each — useful when audit/report content is injected
+  // into the page after DOMContentLoaded has already fired.
+  window.bdnaEcosystemLegend = { render: render, init: autoInit };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoInit);
