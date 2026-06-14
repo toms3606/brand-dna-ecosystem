@@ -85,7 +85,7 @@
       '<section class="hero">',
         '<div class="title-strip">THE</div>',
         '<h2 class="hero-title">Brand DNA Ecosystem Model</h2>',
-        '<p class="hero-sub">Five components. One source. Every engagement starts at the nucleus.</p>',
+        '<p class="hero-sub">Marketing That Learns. Sharper with Every Cycle. Minimizes Drift.</p>',
         '<div class="molecule-stage">',
           '<div class="molecule-wrap">',
             moleculeSVG(),
