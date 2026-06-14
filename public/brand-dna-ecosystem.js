@@ -1,6 +1,6 @@
 /* brand-dna-ecosystem.js — The Brand DNA Ecosystem
  *
- * v3 — CSS extracted to a Squarespace Code block. This file only injects
+ * v3 — CSS extracted to a Squarespace Code block. This file only inject
  * markup, fonts, and interactions. CSS lives in the page itself so it
  * wins specificity against Squarespace defaults without needing !important.
  *
