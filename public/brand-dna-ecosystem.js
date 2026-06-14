@@ -125,9 +125,10 @@
     var cards = keys.map(function (k) {
       var n = NODES[k];
       var isNucleus = k === 'nucleus';
+      var tagText = isNucleus ? 'Nucleus' : 'Core Node ' + (MOLECULE.coreNumbers[k] || '');
       return [
         '<div class="component-card' + (isNucleus ? ' component-card--nucleus' : '') + '">',
-          '<div class="component-card-tag">' + esc(isNucleus ? 'Nucleus' : 'Core Node') + '</div>',
+          '<div class="component-card-tag">' + esc(tagText) + '</div>',
           '<div class="component-card-label">' + esc(n.label) + '</div>',
           '<p class="component-card-text"><strong>' + esc(n.opener) + '</strong> ' + esc(n.body) + '</p>',
         '</div>'
@@ -255,7 +256,17 @@
     coreW: 150, coreH: 93,
     subW: 120, subH: 70,
     subRadius: 230,
-    subArcSpanDeg: 180
+    subArcSpanDeg: 180,
+    // Sequence numbers for the four orbital cores. The Brand DNA nucleus is
+    // intentionally not numbered — it's the source, not a step in a sequence.
+    // Order reflects the model's logical flow: Goals (destination) →
+    // Environment (context) → Strategies (plan) → Execution (action).
+    coreNumbers: {
+      goals: '01',
+      environment: '02',
+      strategies: '03',
+      execution: '04'
+    }
   };
 
   // Return the 6 vertices of a flat-top hex centered at (cx, cy)
@@ -404,9 +415,13 @@
       var core = m.cores[key];
       var label = key.toUpperCase();
       var labelClass = (label === 'ENVIRONMENT') ? 'node-label core-label env' : 'node-label core-label';
+      var number = m.coreNumbers[key];
       parts.push('<g class="node core" data-node="' + key + '" tabindex="0" role="button" aria-label="' + esc(label.charAt(0) + label.slice(1).toLowerCase()) + '">');
       parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
-      parts.push('<text x="' + core.cx + '" y="' + (core.cy + 6) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
+      if (number) {
+        parts.push('<text x="' + core.cx + '" y="' + (core.cy - 8) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
+      }
+      parts.push('<text x="' + core.cx + '" y="' + (core.cy + 13) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
       parts.push('</g>');
     });
 
@@ -472,9 +487,13 @@
 
     // Core hex (default styling, not active)
     var labelClass = (label === 'ENVIRONMENT') ? 'node-label core-label env' : 'node-label core-label';
+    var number = m.coreNumbers[key];
     parts.push('<g class="node core">');
     parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
-    parts.push('<text x="' + core.cx + '" y="' + (core.cy + 6) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
+    if (number) {
+      parts.push('<text x="' + core.cx + '" y="' + (core.cy - 8) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
+    }
+    parts.push('<text x="' + core.cx + '" y="' + (core.cy + 13) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
     parts.push('</g>');
 
     // Sub-nodes (default styling — white fill, hairline outline)
