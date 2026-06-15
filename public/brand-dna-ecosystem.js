@@ -1,5 +1,11 @@
 /* brand-dna-ecosystem.js — The Brand DNA Ecosystem
  *
+ * v4 — Framework label updates:
+ *      Execution > AI → CX
+ *      Strategies > CONTENT PLAN → CUSTOMER
+ *      Environment > AI/SEARCH → EXTERNAL AI
+ *      Prose mentions of "AI-search" / "AI/Search layer" → "External AI"
+ *
  * v3 — CSS extracted to a Squarespace Code block. This file only injects
  * markup, fonts, and interactions. CSS lives in the page itself so it
  * wins specificity against Squarespace defaults without needing !important.
@@ -51,7 +57,7 @@
     environment: {
       label: 'Environment',
       opener: 'Where your brand operates.',
-      body: 'The market, the audience, the competitive landscape, the AI-search environment. Environment is what you measure against — and what shifts under you while you work.'
+      body: 'The market, the audience, the competitive landscape, the External AI layer. Environment is what you measure against — and what shifts under you while you work.'
     },
     strategies: {
       label: 'Strategies',
@@ -111,7 +117,7 @@
             componentSVG('goals'),
           '</div>',
           '<div class="section-stack-text">',
-            '<p class="prose">Each of the four orbital components is itself composed of domains — the specific areas where the work happens. Goals isn\'t a single thing; it\'s Revenue and Market Share and Acquisition and Retention and the rest. Environment isn\'t monolithic; it\'s the Market, the Competitors, the Audiences, the AI/Search layer, the Industry, the Regulatory context. The sub-nodes in the molecule are these domains.</p>',
+            '<p class="prose">Each of the four orbital components is itself composed of domains — the specific areas where the work happens. Goals isn\'t a single thing; it\'s Revenue and Market Share and Acquisition and Retention and the rest. Environment isn\'t monolithic; it\'s the Market, the Competitors, the Audiences, the External AI layer, the Industry, the Regulatory context. The sub-nodes in the molecule are these domains.</p>',
             '<p class="prose">The decomposition is practical, not academic. Brands don\'t strategize on "Goals" — they strategize on Retention or on Authority. They don\'t analyze "Environment" — they analyze a Competitor or a Regulatory shift. Naming the domains is how the model becomes operable: you can audit a single domain, target a single domain, build a tool around a single domain. The components organize the work; the domains are where the work gets done.</p>',
             '<p class="prose">Not every domain maps to every brand. A B2B SaaS company and a regulated healthcare brand operate in different environments and pursue different goals; the domains shown here are a starting set, not a universal one. We generate custom sub-nodes when a brand\'s actual structure calls for them — adding the ones that matter, removing the ones that don\'t, renaming the ones that fit better in the brand\'s own language.</p>',
           '</div>',
@@ -245,13 +251,13 @@
     nucleus: { cx: 650, cy: 510 },
     cores: {
       execution:   { cx: 360, cy: 240,
-                     subs: ['CONTENT', 'PAID MEDIA', 'SEO/GEO', 'EMAIL', 'SOCIAL', 'AI'] },
+                     subs: ['CONTENT', 'PAID MEDIA', 'SEO/GEO', 'EMAIL', 'SOCIAL', 'CX'] },
       goals:       { cx: 940, cy: 240,
                      subs: ['REVENUE', 'MARKET\nSHARE', 'ACQUISITION', 'RETENTION', 'GROWTH', 'AUTHORITY'] },
       strategies:  { cx: 360, cy: 780,
-                     subs: ['CHANNELS', 'TARGETING', 'POSITIONING', 'CONTENT\nPLAN', 'PRICING', 'PRODUCT/\nSERVICE'] },
+                     subs: ['CHANNELS', 'TARGETING', 'POSITIONING', 'CUSTOMER', 'PRICING', 'PRODUCT/\nSERVICE'] },
       environment: { cx: 940, cy: 780,
-                     subs: ['MARKET', 'COMPETITORS', 'AUDIENCES', 'AI/SEARCH', 'INDUSTRY\nTRENDS', 'REGULATORY'] }
+                     subs: ['MARKET', 'COMPETITORS', 'AUDIENCES', 'EXTERNAL\nAI', 'INDUSTRY\nTRENDS', 'REGULATORY'] }
     },
     coreW: 150, coreH: 93,
     subW: 120, subH: 70,
