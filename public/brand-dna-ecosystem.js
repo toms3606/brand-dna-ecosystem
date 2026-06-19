@@ -191,7 +191,7 @@
         '<p class="prose">Every Westward tool maps to a specific node in the Ecosystem. The free audits are entry points; the paid engagements are full traversals of the system.</p>',
         '<div class="tools-subhead">Available now</div>',
         '<div class="tools-grid">',
-          toolCard('Brand DNA Audit', 'nucleus', 'A free snapshot of current DNA versus ideal — surfaces drift and triggers the alignment conversation.', '/brand-dna-audit'),
+          toolCard('Website Brand Audit', 'nucleus', 'A free snapshot of current DNA versus ideal — surfaces drift and triggers the alignment conversation.', '/website-brand-audit'),
           toolCard('GEO Audit', 'environment', 'A free diagnostic at Environment — measures how AI engines find, interpret, and recommend your brand.', '/geo-audit'),
         '</div>',
       '</section>'
