@@ -398,10 +398,10 @@
 
     // Bond lines: nucleus heptagon vertices → core hex inner vertices
     // Nucleus heptagon at (650, 510), bounding box 150 wide, 93 tall:
-    //   i=1 (upper-right shoulder) = (708.64, 481.01)
-    //   i=2 (right side)           = (723.12, 520.35)
-    //   i=5 (left side)            = (576.88, 520.35)
-    //   i=6 (upper-left shoulder)  = (591.36, 481.01)
+    //   i=1 (upper-right shoulder)      = (708.64, 481.01)
+    //   i=3 (right end of bottom edge)  = (682.54, 551.90)
+    //   i=4 (left end of bottom edge)   = (617.46, 551.90)
+    //   i=6 (upper-left shoulder)       = (591.36, 481.01)
     // Core inner vertices (the hex vertex facing the nucleus):
     //   Goals (940, 240):       bottom-left  = (865, 263)
     //   Environment (940, 780): top-left     = (865, 757)
@@ -409,8 +409,8 @@
     //   Execution (360, 240):   bottom-right = (435, 263)
     parts.push('<g class="bonds" aria-hidden="true">');
     parts.push('<line x1="708.64" y1="481.01" x2="865" y2="263" class="bond"/>');
-    parts.push('<line x1="723.12" y1="520.35" x2="865" y2="757" class="bond"/>');
-    parts.push('<line x1="576.88" y1="520.35" x2="435" y2="757" class="bond"/>');
+    parts.push('<line x1="682.54" y1="551.90" x2="865" y2="757" class="bond"/>');
+    parts.push('<line x1="617.46" y1="551.90" x2="435" y2="757" class="bond"/>');
     parts.push('<line x1="591.36" y1="481.01" x2="435" y2="263" class="bond"/>');
     parts.push('</g>');
 
