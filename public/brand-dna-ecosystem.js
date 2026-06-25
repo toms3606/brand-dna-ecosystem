@@ -292,6 +292,28 @@
     return vertsToPoints(hexVertices(cx, cy, w, h));
   }
 
+  // Heptagon vertices, point-up orientation, inscribed in a (w x h) bounding box
+  // centered at (cx, cy). Used for the Brand DNA nucleus to visually distinguish
+  // it from the four orbital cores (which remain hexagons) — and to mirror the
+  // seven-strand structure shown on the /brand-dna-nucleus page.
+  //   Vertex 0 = top point (-90°), then 51.43° intervals clockwise.
+  //   The 4 vertices used as bond attach points (i=1, 2, 5, 6) are the
+  //   "shoulder" and "side" vertices closest to the original hex's bounding-
+  //   box corners — preserves bond angles within ~2° of the hex layout.
+  function heptagonVertices(cx, cy, w, h) {
+    var rx = w / 2, ry = h / 2;
+    var verts = [];
+    for (var i = 0; i < 7; i++) {
+      var angle = (-90 + i * (360 / 7)) * Math.PI / 180;
+      verts.push({ x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle) });
+    }
+    return verts;
+  }
+
+  function heptagonPoints(cx, cy, w, h) {
+    return vertsToPoints(heptagonVertices(cx, cy, w, h));
+  }
+
   // Walk from a hex center along a ray at `angle` (radians) and return the
   // point where the ray exits the hex perimeter. Used to compute the attach
   // point for each sub-bond — where the radial line from core to sub-node
@@ -374,20 +396,22 @@
     parts.push('<title id="mol-title">The Brand DNA Ecosystem</title>');
     parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
-    // Bond lines: nucleus vertices → core node inner vertices
-    // Nucleus hex at (650, 510), width 150, height 93:
-    //   top-right vertex = (725, 487), bottom-right = (725, 533)
-    //   bottom-left = (575, 533), top-left = (575, 487)
-    // Core inner vertices (the vertex facing the nucleus):
+    // Bond lines: nucleus heptagon vertices → core hex inner vertices
+    // Nucleus heptagon at (650, 510), bounding box 150 wide, 93 tall:
+    //   i=1 (upper-right shoulder) = (708.64, 481.01)
+    //   i=2 (right side)           = (723.12, 520.35)
+    //   i=5 (left side)            = (576.88, 520.35)
+    //   i=6 (upper-left shoulder)  = (591.36, 481.01)
+    // Core inner vertices (the hex vertex facing the nucleus):
     //   Goals (940, 240):       bottom-left  = (865, 263)
     //   Environment (940, 780): top-left     = (865, 757)
     //   Strategies (360, 780):  top-right    = (435, 757)
     //   Execution (360, 240):   bottom-right = (435, 263)
     parts.push('<g class="bonds" aria-hidden="true">');
-    parts.push('<line x1="725" y1="487" x2="865" y2="263" class="bond"/>');
-    parts.push('<line x1="725" y1="533" x2="865" y2="757" class="bond"/>');
-    parts.push('<line x1="575" y1="533" x2="435" y2="757" class="bond"/>');
-    parts.push('<line x1="575" y1="487" x2="435" y2="263" class="bond"/>');
+    parts.push('<line x1="708.64" y1="481.01" x2="865" y2="263" class="bond"/>');
+    parts.push('<line x1="723.12" y1="520.35" x2="865" y2="757" class="bond"/>');
+    parts.push('<line x1="576.88" y1="520.35" x2="435" y2="757" class="bond"/>');
+    parts.push('<line x1="591.36" y1="481.01" x2="435" y2="263" class="bond"/>');
     parts.push('</g>');
 
     // Sub-bond lines: core center → sub-node center
@@ -406,7 +430,7 @@
 
     // Nucleus
     parts.push('<g class="node nucleus" data-node="nucleus" tabindex="0" role="button" aria-label="Brand DNA">');
-    parts.push('<polygon points="' + hexPoints(m.nucleus.cx, m.nucleus.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
+    parts.push('<polygon points="' + heptagonPoints(m.nucleus.cx, m.nucleus.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
     parts.push('<text x="' + m.nucleus.cx + '" y="' + (m.nucleus.cy + 8) + '" text-anchor="middle" class="node-label nucleus-label">BRAND DNA</text>');
     parts.push('</g>');
 
