@@ -84,7 +84,7 @@
     return [
       '<section class="hero">',
         '<div class="title-strip">THE</div>',
-        '<h2 class="hero-title">Brand DNA Ecosystem Model</h2>',
+        '<h2 class="hero-title">Brand Biome Model</h2>',
         '<p class="hero-sub">Marketing That Learns. Sharper with Every Cycle. Minimizes Drift.</p>',
         '<div class="molecule-stage">',
           '<div class="molecule-wrap">',
@@ -111,7 +111,7 @@
             componentSVG('goals'),
           '</div>',
           '<div class="section-stack-text">',
-            '<p class="prose">Each of the four orbital components is itself composed of domains — the specific areas where the work happens. Goals isn\'t a single thing; it\'s Revenue and Market Share and Acquisition and Retention and the rest. Environment isn\'t monolithic; it\'s the Market, the Competitors, the Audiences, the AI/Search layer, the Industry, the Regulatory context. The sub-nodes in the molecule are these domains.</p>',
+            '<p class="prose">Each of the four orbital components is itself composed of domains — the specific areas where the work happens. Goals isn\'t a single thing; it\'s Revenue and Market Share and Acquisition and Retention and the rest. Environment isn\'t monolithic; it\'s the Market, the Competitors, the Audiences, External AI, the Industry, the Regulatory context. The sub-nodes in the molecule are these domains.</p>',
             '<p class="prose">The decomposition is practical, not academic. Brands don\'t strategize on "Goals" — they strategize on Retention or on Authority. They don\'t analyze "Environment" — they analyze a Competitor or a Regulatory shift. Naming the domains is how the model becomes operable: you can audit a single domain, target a single domain, build a tool around a single domain. The components organize the work; the domains are where the work gets done.</p>',
             '<p class="prose">Not every domain maps to every brand. A B2B SaaS company and a regulated healthcare brand operate in different environments and pursue different goals; the domains shown here are a starting set, not a universal one. We generate custom sub-nodes when a brand\'s actual structure calls for them — adding the ones that matter, removing the ones that don\'t, renaming the ones that fit better in the brand\'s own language.</p>',
           '</div>',
@@ -188,7 +188,7 @@
     return [
       '<section class="page-section">',
         '<div class="section-label">How Tools Fit</div>',
-        '<p class="prose">Every Westward tool maps to a specific node in the Ecosystem. The free audits are entry points; the paid engagements are full traversals of the system.</p>',
+        '<p class="prose">Every Westward tool maps to a specific node in the Biome Model. The free audits are entry points; the paid engagements are full traversals of the system.</p>',
         '<div class="tools-subhead">Available now</div>',
         '<div class="tools-grid">',
           toolCard('Website Brand Audit', 'nucleus', 'A free snapshot of current DNA versus ideal — surfaces drift and triggers the alignment conversation.', '/website-brand-audit'),
@@ -214,7 +214,7 @@
       '<div class="cta">',
         '<div>',
           '<div class="cta-tag">Next Step</div>',
-          '<div class="cta-headline">Run the full Ecosystem on your brand.</div>',
+          '<div class="cta-headline">Run the full Biome Model on your brand.</div>',
           '<div class="cta-body">The free audits are the starting point. We partner with you to define your Brand DNA, set Goals against your real Environment, choose the Strategies that follow from your DNA, and execute alongside your team — with the feedback loop refining the system every step.</div>',
         '</div>',
         '<a href="' + CONTACT_URL + '" class="cta-btn">Contact the Lab</a>',
@@ -393,7 +393,7 @@
     var parts = [];
 
     parts.push('<svg viewBox="0 -40 1300 1100" role="img" aria-labelledby="mol-title mol-desc" class="molecule">');
-    parts.push('<title id="mol-title">The Brand DNA Ecosystem</title>');
+    parts.push('<title id="mol-title">The Brand Biome Model</title>');
     parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
     // Bond lines: nucleus heptagon vertices → core hex inner vertices
