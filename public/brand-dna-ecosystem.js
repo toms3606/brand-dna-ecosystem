@@ -40,7 +40,7 @@
   var NODES = {
     nucleus: {
       label: 'Brand DNA',
-      opener: 'What your brand actually is.',
+      opener: 'What your brand is internally and externally.',
       body: 'Your Brand DNA is the source — all marketing is an expression of it. Define the source, and every channel, campaign, and AI-generated reply reinforces the same brand. Skip it, and you scale the drift.'
     },
     goals: {
