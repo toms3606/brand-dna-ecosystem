@@ -314,6 +314,62 @@
     return vertsToPoints(heptagonVertices(cx, cy, w, h));
   }
 
+  // Full Brand DNA Nucleus artwork: seven strands (Voice, Visual, Narrative,
+  // Values, Audience, Promise, Positioning) radiating from a "12 Brand
+  // Archetypes" core, framed by an outer heptagon. This is the same artwork
+  // used on the standalone /brand-dna-nucleus page and the homepage
+  // biome-graphic embed — reused here verbatim in its own local coordinate
+  // space (centered at 340,300) and placed via translate/scale so it drops
+  // into any (cx, cy) at the same visual size as the old flat nucleus hex.
+  var NUCLEUS_STRAND_ANGLES = [-90, -38.57, 12.86, 64.29, 115.71, 167.14, 218.57];
+  var NUCLEUS_STRAND_PATH = '<path d="M 88,0 Q 105,-12 121,0 T 155,0 T 188,0 T 221,0" class="nuc-strand"/>' +
+    '<path d="M 88,0 Q 105,12 121,0 T 155,0 T 188,0 T 221,0" class="nuc-strand"/>' +
+    '<line x1="105" y1="-6" x2="105" y2="6" class="nuc-rung"/>' +
+    '<line x1="138" y1="-6" x2="138" y2="6" class="nuc-rung"/>' +
+    '<line x1="171" y1="-6" x2="171" y2="6" class="nuc-rung"/>' +
+    '<line x1="205" y1="-6" x2="205" y2="6" class="nuc-rung"/>';
+  var NUCLEUS_LABELS = [
+    [340.0, 38.0, 'B.DNA 01', 'core-number'], [340.0, 56.0, 'VOICE', 'core-label'],
+    [544.8, 136.7, 'B.DNA 02', 'core-number'], [544.8, 154.7, 'VISUAL', 'core-label'],
+    [595.4, 358.3, 'B.DNA 03', 'core-number'], [595.4, 376.3, 'NARRATIVE', 'core-label'],
+    [453.7, 536.1, 'B.DNA 04', 'core-number'], [453.7, 554.1, 'VALUES', 'core-label'],
+    [226.3, 536.1, 'B.DNA 05', 'core-number'], [226.3, 554.1, 'AUDIENCE', 'core-label'],
+    [84.6, 358.3, 'B.DNA 06', 'core-number'], [84.6, 376.3, 'PROMISE', 'core-label'],
+    [135.2, 136.7, 'B.DNA 07', 'core-number'], [135.2, 154.7, 'POSITIONING', 'core-label']
+  ];
+
+  function nucleusArtworkSVG(cx, cy) {
+    var parts = [];
+    parts.push('<g transform="translate(' + cx + ' ' + cy + ') scale(0.9) translate(-340 -300)">');
+
+    // Invisible hit-area: keeps the whole nucleus footprint hoverable/
+    // clickable, not just the thin strand lines.
+    parts.push('<circle cx="340" cy="300" r="320" fill="transparent" style="pointer-events:all;"/>');
+
+    // Outer frame
+    parts.push('<polygon points="340.0,-40.0 605.8,88.0 671.5,375.7 487.5,606.3 192.5,606.3 8.5,375.7 74.2,88.0" class="nuc-outer-shape"/>');
+
+    // Seven strands
+    for (var i = 0; i < NUCLEUS_STRAND_ANGLES.length; i++) {
+      parts.push('<g transform="translate(340 300) rotate(' + NUCLEUS_STRAND_ANGLES[i] + ')">' + NUCLEUS_STRAND_PATH + '</g>');
+    }
+
+    // Core: 12 Brand Archetypes — white fill, dark green lettering
+    parts.push('<polygon points="340.0,218.0 404.1,248.9 419.9,318.3 375.6,373.9 304.4,373.9 260.1,318.3 275.9,248.9" class="node-shape" style="fill:#ffffff;stroke-width:0.75;"/>');
+    parts.push('<text x="340" y="278" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">12</text>');
+    parts.push('<text x="340" y="298" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">BRAND</text>');
+    parts.push('<text x="340" y="318" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">ARCHETYPES</text>');
+
+    // Strand numbers + labels
+    for (var j = 0; j < NUCLEUS_LABELS.length; j++) {
+      var L = NUCLEUS_LABELS[j];
+      parts.push('<text x="' + L[0] + '" y="' + L[1] + '" text-anchor="middle" class="' + L[3] + '">' + esc(L[2]) + '</text>');
+    }
+
+    parts.push('</g>');
+    return parts.join('');
+  }
+
   // Walk from a hex center along a ray at `angle` (radians) and return the
   // point where the ray exits the hex perimeter. Used to compute the attach
   // point for each sub-bond — where the radial line from core to sub-node
@@ -396,22 +452,21 @@
     parts.push('<title id="mol-title">The Brand Biome Model</title>');
     parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
-    // Bond lines: nucleus heptagon vertices → core hex inner vertices
-    // Nucleus heptagon at (650, 510), bounding box 150 wide, 93 tall:
-    //   i=1 (upper-right shoulder)      = (708.64, 481.01)
-    //   i=3 (right end of bottom edge)  = (682.54, 551.90)
-    //   i=4 (left end of bottom edge)   = (617.46, 551.90)
-    //   i=6 (upper-left shoulder)       = (591.36, 481.01)
-    // Core inner vertices (the hex vertex facing the nucleus):
-    //   Goals (940, 240):       bottom-left  = (865, 263)
-    //   Environment (940, 780): top-left     = (865, 757)
-    //   Strategies (360, 780):  top-right    = (435, 757)
-    //   Execution (360, 240):   bottom-right = (435, 263)
+    // Bond lines: outer nucleus-frame vertices → specific core hex vertices.
+    // The nucleus frame shares the same 7 strand angles as the Brand DNA
+    // Nucleus artwork; only 4 of its 7 vertices connect to a core (Visual →
+    // Goals, Values → Environment, Audience → Strategies, Positioning →
+    // Execution) — Voice, Narrative, and Promise stay unconnected, same as
+    // the standalone /brand-dna-nucleus page and the homepage embed.
+    //   Goals:       bottom point       = (940, 286.5)
+    //   Environment: lower-left point   = (865, 803.25)
+    //   Strategies:  lower-right point  = (435, 803.25)
+    //   Execution:   bottom point       = (360, 286.5)
     parts.push('<g class="bonds" aria-hidden="true">');
-    parts.push('<line x1="708.64" y1="481.01" x2="865" y2="263" class="bond"/>');
-    parts.push('<line x1="682.54" y1="551.90" x2="865" y2="757" class="bond"/>');
-    parts.push('<line x1="617.46" y1="551.90" x2="435" y2="757" class="bond"/>');
-    parts.push('<line x1="591.36" y1="481.01" x2="435" y2="263" class="bond"/>');
+    parts.push('<line x1="889.22" y1="319.2" x2="940" y2="286.5" class="bond"/>');
+    parts.push('<line x1="782.75" y1="785.67" x2="865" y2="803.25" class="bond"/>');
+    parts.push('<line x1="517.25" y1="785.67" x2="435" y2="803.25" class="bond"/>');
+    parts.push('<line x1="410.78" y1="319.2" x2="360" y2="286.5" class="bond"/>');
     parts.push('</g>');
 
     // Sub-bond lines: core center → sub-node center
@@ -428,10 +483,12 @@
     });
     parts.push('</g>');
 
-    // Nucleus
+    // Nucleus — full Brand DNA Nucleus artwork (matches the standalone
+    // /brand-dna-nucleus page and the homepage biome-graphic embed): seven
+    // strands radiating from a white "12 Brand Archetypes" core, framed by
+    // a light outer heptagon.
     parts.push('<g class="node nucleus" data-node="nucleus" tabindex="0" role="button" aria-label="Brand DNA">');
-    parts.push('<polygon points="' + heptagonPoints(m.nucleus.cx, m.nucleus.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
-    parts.push('<text x="' + m.nucleus.cx + '" y="' + (m.nucleus.cy + 8) + '" text-anchor="middle" class="node-label nucleus-label">BRAND DNA</text>');
+    parts.push(nucleusArtworkSVG(m.nucleus.cx, m.nucleus.cy));
     parts.push('</g>');
 
     // Core nodes
