@@ -72,7 +72,6 @@
       '<div class="bdna-page">',
         heroHTML(),
         componentsHTML(),
-        domainsHTML(),
         feedbackHTML(),
         toolsHTML(),
         ctaHTML(),
@@ -95,25 +94,6 @@
               '<div class="info-label">Hover or click a node</div>',
               '<div class="info-hint">Each component reveals its role in the system.</div>',
             '</div>',
-          '</div>',
-        '</div>',
-      '</section>'
-    ].join('');
-  }
-
-  function domainsHTML() {
-    return [
-      '<section class="page-section">',
-        '<div class="section-label">Inside the Components</div>',
-        '<p class="section-opener">What composes each component.</p>',
-        '<div class="section-stack">',
-          '<div class="section-stack-graphic">',
-            componentSVG('goals'),
-          '</div>',
-          '<div class="section-stack-text">',
-            '<p class="prose">Each of the four orbital components is itself composed of domains — the specific areas where the work happens. Goals isn\'t a single thing; it\'s Revenue and Market Share and Acquisition and Retention and the rest. Environment isn\'t monolithic; it\'s the Market, the Competitors, the Audiences, External AI, the Industry, the Regulatory context. The sub-nodes in the molecule are these domains.</p>',
-            '<p class="prose">The decomposition is practical, not academic. Brands don\'t strategize on "Goals" — they strategize on Retention or on Authority. They don\'t analyze "Environment" — they analyze a Competitor or a Regulatory shift. Naming the domains is how the model becomes operable: you can audit a single domain, target a single domain, build a tool around a single domain. The components organize the work; the domains are where the work gets done.</p>',
-            '<p class="prose">Not every domain maps to every brand. A B2B SaaS company and a regulated healthcare brand operate in different environments and pursue different goals; the domains shown here are a starting set, not a universal one. We generate custom sub-nodes when a brand\'s actual structure calls for them — adding the ones that matter, removing the ones that don\'t, renaming the ones that fit better in the brand\'s own language.</p>',
           '</div>',
         '</div>',
       '</section>'
@@ -521,74 +501,6 @@
         parts.push('</g>');
       }
     });
-
-    parts.push('</svg>');
-    return parts.join('');
-  }
-
-  // Render an isolated illustration of one component + its sub-nodes.
-  // Same coordinates as the main molecule (so geometry matches exactly),
-  // but no nucleus, no other cores, no BDNA bond. All elements in their
-  // default (unselected) state.
-  function componentSVG(key) {
-    var m = MOLECULE;
-    var core = m.cores[key];
-    if (!core) return '';
-    var label = key.toUpperCase();
-
-    // Compute bounding box of the component + sub-nodes for viewBox cropping
-    var minX = core.cx - m.coreW / 2;
-    var maxX = core.cx + m.coreW / 2;
-    var minY = core.cy - m.coreH / 2;
-    var maxY = core.cy + m.coreH / 2;
-    for (var i = 0; i < core.subs.length; i++) {
-      var sl = subLayout(core, i, core.subs.length, m.nucleus);
-      minX = Math.min(minX, sl.center.x - m.subW / 2);
-      maxX = Math.max(maxX, sl.center.x + m.subW / 2);
-      minY = Math.min(minY, sl.center.y - m.subH / 2);
-      maxY = Math.max(maxY, sl.center.y + m.subH / 2);
-    }
-    // Add a little padding so strokes / labels aren't clipped
-    var pad = 12;
-    var vbX = (minX - pad).toFixed(0);
-    var vbY = (minY - pad).toFixed(0);
-    var vbW = (maxX - minX + 2 * pad).toFixed(0);
-    var vbH = (maxY - minY + 2 * pad).toFixed(0);
-
-    var parts = [];
-    parts.push('<svg viewBox="' + vbX + ' ' + vbY + ' ' + vbW + ' ' + vbH + '" role="img" aria-label="' + esc(label.charAt(0) + label.slice(1).toLowerCase()) + ' component with its sub-nodes" class="molecule component-detail">');
-
-    // Sub-bond lines
-    parts.push('<g class="sub-bonds" aria-hidden="true">');
-    for (var j = 0; j < core.subs.length; j++) {
-      var sl2 = subLayout(core, j, core.subs.length, m.nucleus);
-      parts.push('<line x1="' + sl2.bondStart.x.toFixed(1) + '" y1="' + sl2.bondStart.y.toFixed(1) + '" x2="' + sl2.center.x.toFixed(1) + '" y2="' + sl2.center.y.toFixed(1) + '" class="sub-bond"/>');
-    }
-    parts.push('</g>');
-
-    // Core hex (default styling, not active)
-    var labelClass = (label === 'ENVIRONMENT') ? 'node-label core-label env' : 'node-label core-label';
-    var number = m.coreNumbers[key];
-    parts.push('<g class="node core">');
-    parts.push('<polygon points="' + hexPoints(core.cx, core.cy, m.coreW, m.coreH) + '" class="node-shape"/>');
-    if (number) {
-      parts.push('<text x="' + core.cx + '" y="' + (core.cy - 10) + '" text-anchor="middle" class="core-number">' + esc(number) + '</text>');
-    }
-    parts.push('<text x="' + core.cx + '" y="' + (core.cy + 14) + '" text-anchor="middle" class="' + labelClass + '">' + label + '</text>');
-    parts.push('</g>');
-
-    // Sub-nodes (default styling — white fill, hairline outline)
-    for (var k = 0; k < core.subs.length; k++) {
-      var sublabel = core.subs[k];
-      var sl3 = subLayout(core, k, core.subs.length, m.nucleus);
-      var px = sl3.center.x, py = sl3.center.y;
-      parts.push('<g class="sub-node">');
-      parts.push('<polygon points="' + hexPoints(px, py, m.subW, m.subH) + '" class="sub-node-shape"/>');
-      parts.push('<text x="' + px.toFixed(1) + '" y="' + (py + 3).toFixed(1) + '" text-anchor="middle" class="sub-node-label">');
-      parts.push(subLabelTspans(sublabel, px.toFixed(1), py.toFixed(1)));
-      parts.push('</text>');
-      parts.push('</g>');
-    }
 
     parts.push('</svg>');
     return parts.join('');
