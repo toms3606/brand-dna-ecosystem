@@ -54,7 +54,7 @@
     { x1: 560, y1: 482, x2: 455, y2: 328 }  // BDNA → Execution
   ];
 
-  var DEFAULT_LINK = 'https://westwardmarketinglab.com/brand-dna-ecosystem';
+  var DEFAULT_LINK = 'https://www.westwardmarketinglab.com/brand-biome-model';
   var DEFAULT_SECTION_LABEL = 'How this audit fits into the Brand DNA Ecosystem';
 
   function hexPoints(cx, cy, w, h) {

@@ -1,4 +1,4 @@
-/* brand-dna-ecosystem.js — The Brand DNA Ecosystem
+/* brand-dna-ecosystem.js — The Brand Biome Model (formerly the Brand DNA Ecosystem)
  *
  * v3 — CSS extracted to a Squarespace Code block. This file only injects
  * markup, fonts, and interactions. CSS lives in the page itself so it
@@ -39,14 +39,14 @@
 
   var NODES = {
     nucleus: {
-      label: 'Brand DNA',
+      label: 'Brand Nucleus',
       opener: 'What your brand is internally and externally.',
-      body: 'Your Brand DNA is the source — all marketing is an expression of it. Define the source, and every channel, campaign, and AI-generated reply reinforces the same brand. Skip it, and you scale the drift.'
+      body: 'Your Brand Nucleus is the source — all marketing is an expression of it. Define the source, and every channel, campaign, and AI-generated reply reinforces the same brand. Skip it, and you scale the drift.'
     },
     goals: {
       label: 'Goals',
       opener: 'What your brand strives to achieve.',
-      body: 'Goals define the destination — quantitative targets, qualitative shifts, the outcomes that DNA work is in service of. Without Goals, every other node lacks direction.'
+      body: 'Goals define the destination — quantitative targets, qualitative shifts, the outcomes that Brand Nucleus work is in service of. Without Goals, every other node lacks direction.'
     },
     environment: {
       label: 'Environment',
@@ -56,12 +56,12 @@
     strategies: {
       label: 'Strategies',
       opener: 'How your brand plans to achieve goals.',
-      body: 'Strategies translate DNA into plans — the chosen paths, the prioritized moves, the decisions about what gets resources and what doesn\'t.'
+      body: 'Strategies translate the Brand Nucleus into plans — the chosen paths, the prioritized moves, the decisions about what gets resources and what doesn\'t.'
     },
     execution: {
       label: 'Execution',
       opener: 'What actions your brand takes to implement the strategy.',
-      body: 'Execution is where DNA meets the world — content, campaigns, channels, automations, conversations. Every output either reinforces the brand or erodes it.'
+      body: 'Execution is where the Brand Nucleus meets the world — content, campaigns, channels, automations, conversations. Every output either reinforces the brand or erodes it.'
     }
   };
 
@@ -153,12 +153,12 @@
     return [
       '<section class="page-section">',
         '<div class="section-label">The Feedback Loop</div>',
-        '<p class="section-opener">How your Brand DNA model learns.</p>',
-        '<p class="prose">The four orbital nodes iterate. Goals get reset by leadership and recalibrated by what Strategies and Environment reveal; Strategies adjust to Environment shifts and to Execution data. Brand DNA at the center holds — it\'s the filter every change passes through, not something that updates with each cycle. The DNA is revisited only on major business events: new market, new leadership, true repositioning.</p>',
+        '<p class="section-opener">How your Brand Biome Model learns.</p>',
+        '<p class="prose">The four orbital nodes iterate. Goals get reset by leadership and recalibrated by what Strategies and Environment reveal; Strategies adjust to Environment shifts and to Execution data. The Brand Nucleus at the center holds — it\'s the filter every change passes through, not something that updates with each cycle. The Brand Nucleus is revisited only on major business events: new market, new leadership, true repositioning.</p>',
         '<div class="flow-grid">' + cards + '</div>',
         '<div class="callout">',
           '<div class="callout-label">The operating difference</div>',
-          '<p class="callout-text">The system gets sharper with every iterative cycle. This is what separates a one-off audit from a Westward engagement — the work compounds because the model keeps teaching itself.</p>',
+          '<p class="callout-text">The system gets sharper with every iterative cycle. This is what separates a one-off audit from a Westward Marketing Lab engagement — the work compounds because the model keeps teaching itself.</p>',
         '</div>',
       '</section>'
     ].join('');
@@ -168,10 +168,10 @@
     return [
       '<section class="page-section">',
         '<div class="section-label">How Tools Fit</div>',
-        '<p class="prose">Every Westward tool maps to a specific node in the Biome Model. The free audits are entry points; the paid engagements are full traversals of the system.</p>',
+        '<p class="prose">Every Westward Marketing Lab tool maps to a specific node in the Biome Model. The free audits are entry points; the paid engagements are full traversals of the system.</p>',
         '<div class="tools-subhead">Available now</div>',
         '<div class="tools-grid">',
-          toolCard('Website Brand Audit', 'nucleus', 'A free snapshot of current DNA versus ideal — surfaces drift and triggers the alignment conversation.', '/website-brand-audit'),
+          toolCard('Website Brand Audit', 'nucleus', 'A free snapshot of your current Brand Nucleus versus its ideal — surfaces drift and triggers the alignment conversation.', '/website-brand-audit'),
           toolCard('GEO Audit', 'environment', 'A free diagnostic at Environment — measures how AI engines find, interpret, and recommend your brand.', '/geo-audit'),
         '</div>',
       '</section>'
@@ -195,7 +195,7 @@
         '<div>',
           '<div class="cta-tag">Next Step</div>',
           '<div class="cta-headline">Run the full Biome Model on your brand.</div>',
-          '<div class="cta-body">The free audits are the starting point. We partner with you to define your Brand DNA, set Goals against your real Environment, choose the Strategies that follow from your DNA, and execute alongside your team — with the feedback loop refining the system every step.</div>',
+          '<div class="cta-body">The free audits are the starting point. We partner with you to define your Brand Nucleus, set Goals against your real Environment, choose the Strategies that follow from your Brand Nucleus, and execute alongside your team — with the feedback loop refining the system every step.</div>',
         '</div>',
         '<a href="' + CONTACT_URL + '" class="cta-btn">Contact the Lab</a>',
       '</div>'
@@ -207,7 +207,7 @@
   // ---- Molecule layout -----------------------------------------------------
 
   // Geometry overview:
-  //   - Brand DNA nucleus at canvas center; 4 core nodes orbit it.
+  //   - Brand Nucleus at canvas center; 4 core nodes orbit it.
   //   - Each core's sub-nodes radiate outward on individual angular spokes,
   //     evenly spaced across a 180° arc centered on the "outward" direction
   //     (the direction from nucleus to core).
@@ -237,7 +237,7 @@
     subW: 120, subH: 70,
     subRadius: 230,
     subArcSpanDeg: 180,
-    // Sequence numbers for the four orbital cores. The Brand DNA nucleus is
+    // Sequence numbers for the four orbital cores. The Brand Nucleus is
     // intentionally not numbered — it's the source, not a step in a sequence.
     // Order reflects the model's logical flow: Goals (destination) →
     // Environment (context) → Strategies (plan) → Execution (action).
@@ -273,7 +273,7 @@
   }
 
   // Heptagon vertices, point-up orientation, inscribed in a (w x h) bounding box
-  // centered at (cx, cy). Used for the Brand DNA nucleus to visually distinguish
+  // centered at (cx, cy). Used for the Brand Nucleus to visually distinguish
   // it from the four orbital cores (which remain hexagons) — and to mirror the
   // seven-strand structure shown on the /brand-dna-nucleus page.
   //   Vertex 0 = top point (-90°), then 51.43° intervals clockwise.
@@ -294,9 +294,9 @@
     return vertsToPoints(heptagonVertices(cx, cy, w, h));
   }
 
-  // Full Brand DNA Nucleus artwork: seven strands (Voice, Visual, Narrative,
-  // Values, Audience, Promise, Positioning) radiating from a "12 Brand
-  // Archetypes" core, framed by an outer heptagon. This is the same artwork
+  // Full Brand Nucleus artwork: seven strands (Voice, Visual, Narrative,
+  // Values, Audience, Promise, Positioning) radiating from a "Brand
+  // Archetype Composition" core, framed by an outer heptagon. This is the same artwork
   // used on the standalone /brand-dna-nucleus page and the homepage
   // biome-graphic embed — reused here verbatim in its own local coordinate
   // space (centered at 340,300) and placed via translate/scale so it drops
@@ -334,11 +334,11 @@
       parts.push('<g transform="translate(340 300) rotate(' + NUCLEUS_STRAND_ANGLES[i] + ')">' + NUCLEUS_STRAND_PATH + '</g>');
     }
 
-    // Core: 12 Brand Archetypes — white fill, dark green lettering
+    // Core: Brand Archetype Composition — white fill, dark green lettering
     parts.push('<polygon points="340.0,218.0 404.1,248.9 419.9,318.3 375.6,373.9 304.4,373.9 260.1,318.3 275.9,248.9" class="node-shape" style="fill:#ffffff;stroke-width:0.75;"/>');
-    parts.push('<text x="340" y="278" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">12</text>');
-    parts.push('<text x="340" y="298" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">BRAND</text>');
-    parts.push('<text x="340" y="318" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">ARCHETYPES</text>');
+    parts.push('<text x="340" y="278" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">BRAND</text>');
+    parts.push('<text x="340" y="298" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">ARCHETYPE</text>');
+    parts.push('<text x="340" y="318" text-anchor="middle" class="node-label nucleus-label" style="fill:#085041;">COMPOSITION</text>');
 
     // Strand numbers + labels
     for (var j = 0; j < NUCLEUS_LABELS.length; j++) {
@@ -430,10 +430,10 @@
 
     parts.push('<svg viewBox="0 -40 1300 1100" role="img" aria-labelledby="mol-title mol-desc" class="molecule">');
     parts.push('<title id="mol-title">The Brand Biome Model</title>');
-    parts.push('<desc id="mol-desc">An interactive diagram with Brand DNA at the nucleus, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
+    parts.push('<desc id="mol-desc">An interactive diagram with the Brand Nucleus at the center, surrounded by four core nodes — Goals, Environment, Strategies, and Execution — each with six sub-nodes representing the domains that compose it. Hover or click any node to highlight it and its sub-nodes.</desc>');
 
     // Bond lines: outer nucleus-frame vertices → specific core hex vertices.
-    // The nucleus frame shares the same 7 strand angles as the Brand DNA
+    // The nucleus frame shares the same 7 strand angles as the Brand Nucleus
     // Nucleus artwork; only 4 of its 7 vertices connect to a core (Visual →
     // Goals, Values → Environment, Audience → Strategies, Positioning →
     // Execution) — Voice, Narrative, and Promise stay unconnected, same as
@@ -463,11 +463,11 @@
     });
     parts.push('</g>');
 
-    // Nucleus — full Brand DNA Nucleus artwork (matches the standalone
+    // Nucleus — full Brand Nucleus artwork (matches the standalone
     // /brand-dna-nucleus page and the homepage biome-graphic embed): seven
-    // strands radiating from a white "12 Brand Archetypes" core, framed by
+    // strands radiating from a white "Brand Archetype Composition" core, framed by
     // a light outer heptagon.
-    parts.push('<g class="node nucleus" data-node="nucleus" tabindex="0" role="button" aria-label="Brand DNA">');
+    parts.push('<g class="node nucleus" data-node="nucleus" tabindex="0" role="button" aria-label="Brand Nucleus">');
     parts.push(nucleusArtworkSVG(m.nucleus.cx, m.nucleus.cy));
     parts.push('</g>');
 
